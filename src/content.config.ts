@@ -21,7 +21,15 @@ const ediciones = defineCollection({
       .array(
         z.object({
           titulo: z.string(),
-          url: z.string().url(),
+          // Las URL llegan de feeds de terceros, que son contenido no confiable.
+          // z.url() por si sola acepta javascript: y data:, que en un href son
+          // ejecutables; aqui solo pasan http y https.
+          url: z
+            .string()
+            .url()
+            .refine((u) => /^https?:$/.test(new URL(u).protocol), {
+              message: 'Solo se admiten URL http o https',
+            }),
           fuente: z.string(),
           fecha: z.coerce.date(),
           seccion: z.string(),
