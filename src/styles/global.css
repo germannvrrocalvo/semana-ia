@@ -1,0 +1,119 @@
+@import 'tailwindcss';
+
+/* Tipografia autoalojada: nada se pide a un servidor externo al cargar la pagina. */
+@import '@fontsource-variable/newsreader/opsz.css';
+@import '@fontsource-variable/newsreader/opsz-italic.css';
+@import '@fontsource-variable/geist/wght.css';
+
+/*
+  Semana IA - sistema de diseno.
+
+  Un periodico: papel, tinta y una sola tinta de color para senalar. El acento
+  (rojo bermellon) marca la semana, los enlaces y las etiquetas de seccion; nunca
+  se usa como fondo de bloques grandes.
+
+  Radio de esquina: 0 en todo el sitio. Es una decision, no un olvido. Las esquinas
+  vivas son lo que separa una publicacion de una plantilla de SaaS.
+*/
+@theme {
+  --font-serif: 'Newsreader Variable', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-papel: #faf9f6;
+  --color-panel: #f1efe8;
+  --color-tinta: #14130f;
+  --color-apunte: #56534a;
+  --color-linea: #d8d4c7;
+  --color-senal: #b03418;
+
+  --radius-none: 0;
+}
+
+/* El tema oscuro redefine los mismos tokens: ningun componente sabe en que modo esta. */
+@custom-variant dark (&:where([data-tema='oscuro'], [data-tema='oscuro'] *));
+
+[data-tema='oscuro'] {
+  --color-papel: #121210;
+  --color-panel: #1c1b17;
+  --color-tinta: #ece9e0;
+  --color-apunte: #9b978b;
+  --color-linea: #302e27;
+  --color-senal: #e0644a;
+}
+
+/* Sin JavaScript no hay atributo data-tema, asi que el modo oscuro del sistema
+   se respeta igualmente. El selector cede ante una eleccion explicita de tema claro. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    --color-papel: #121210;
+    --color-panel: #1c1b17;
+    --color-tinta: #ece9e0;
+    --color-apunte: #9b978b;
+    --color-linea: #302e27;
+    --color-senal: #e0644a;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Evita el salto horizontal cuando aparece la barra de scroll entre paginas. */
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    background-color: var(--color-papel);
+    color: var(--color-tinta);
+    font-family: var(--font-serif);
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Todo lo que no sea prosa (fechas, fuentes, navegacion, etiquetas) va en la grotesca. */
+  .meta {
+    font-family: var(--font-sans);
+    font-feature-settings: 'tnum' 1;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  ::selection {
+    background-color: var(--color-senal);
+    color: var(--color-papel);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-senal);
+    outline-offset: 3px;
+  }
+
+  /*
+    Las secciones aparecen al entrar en pantalla. Motivo: la edicion es una sola
+    columna muy larga y el desvanecido marca el ritmo de lectura, igual que el
+    blanco entre bloques en papel. Es CSS puro con animation-timeline, sin JS ni
+    listeners de scroll.
+  */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .entra {
+        animation: entrada linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 40%;
+      }
+    }
+  }
+
+  @keyframes entrada {
+    from {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}

@@ -1,0 +1,72 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Edicion from '../components/Edicion.astro';
+import { fechaLarga } from '../lib/secciones';
+
+const ediciones = (await getCollection('ediciones')).sort(
+  (a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf(),
+);
+
+const ultima = ediciones[0];
+const anteriores = ediciones.slice(1, 4);
+const { Content } = ultima ? await render(ultima) : { Content: null };
+---
+
+<Base
+  titulo="Semana IA"
+  descripcion={ultima?.data.destacado ?? 'Resumen semanal de noticias de inteligencia artificial en español.'}
+  canonica="/"
+>
+  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+    {
+      ultima ? (
+        <>
+          <Edicion edicion={ultima} nivel="h1">
+            {Content && <Content />}
+          </Edicion>
+
+          {anteriores.length > 0 && (
+            <section class="entra pt-12">
+              <h2 class="meta text-xs uppercase tracking-[0.18em] text-[var(--color-apunte)]">
+                Ediciones anteriores
+              </h2>
+
+              <ul class="mt-6 grid gap-px bg-[var(--color-linea)] sm:grid-cols-3">
+                {anteriores.map((e) => (
+                  <li class="bg-[var(--color-papel)]">
+                    <a
+                      href={`/ediciones/${e.data.semana}`}
+                      class="group flex h-full flex-col gap-3 bg-[var(--color-panel)] p-6 no-underline transition-colors hover:bg-[var(--color-papel)]"
+                    >
+                      <span class="meta text-xs text-[var(--color-apunte)]">
+                        {fechaLarga(e.data.fecha)}
+                      </span>
+                      <span class="leading-snug transition-colors group-hover:text-[var(--color-senal)]">
+                        {e.data.destacado}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href="/archivo"
+                class="meta mt-6 inline-block text-sm text-[var(--color-senal)] underline-offset-4 hover:underline"
+              >
+                Ver el archivo completo
+              </a>
+            </section>
+          )}
+        </>
+      ) : (
+        <div class="max-w-[46ch] py-16">
+          <h1 class="text-3xl font-semibold tracking-tight">Todavía no hay ninguna edición</h1>
+          <p class="mt-4 leading-relaxed text-[var(--color-apunte)]">
+            La primera se publicará en cuanto se ejecute el recopilador semanal.
+          </p>
+        </div>
+      )
+    }
+  </div>
+</Base>

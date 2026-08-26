@@ -1,0 +1,76 @@
+name: Edición semanal
+
+# Cada lunes a las 06:00 UTC (08:00 en la España peninsular). El robot recopila
+# las noticias de la semana anterior y abre un Pull Request con la edición.
+# Nunca publica directamente: la revisión humana es el paso que falta a propósito.
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      dias:
+        description: 'Días hacia atrás que se recopilan'
+        required: false
+        default: '7'
+      forzar:
+        description: 'Sobrescribir la edición si ya existe'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: edicion-semanal
+  cancel-in-progress: false
+
+jobs:
+  generar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generar la edición
+        id: edicion
+        env:
+          # Opcional. Sin esta clave la edición se genera igual, con el extracto
+          # original de cada fuente en lugar de un resumen redactado.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          node scripts/build-issue.mjs \
+            --dias "${{ inputs.dias || 7 }}" \
+            ${{ inputs.forzar && '--forzar' || '' }}
+
+      - name: Comprobar que el sitio sigue compilando
+        run: npm run build
+
+      - name: Abrir el Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: edicion/${{ steps.edicion.outputs.semana }}
+          commit-message: 'Edición ${{ steps.edicion.outputs.semana }}'
+          title: 'Edición ${{ steps.edicion.outputs.semana }} (${{ steps.edicion.outputs.noticias }} noticias)'
+          body: |
+            Edición generada automáticamente para la semana **${{ steps.edicion.outputs.semana }}**.
+
+            Antes de hacer merge:
+
+            - [ ] Los titulares y resúmenes se corresponden con lo que dicen las fuentes
+            - [ ] No se ha colado publicidad disfrazada de noticia
+            - [ ] El titular de la semana es realmente lo más importante que ha pasado
+            - [ ] La vista previa de Vercel se ve bien
+
+            Puedes editar `src/content/ediciones/${{ steps.edicion.outputs.semana }}.md`
+            directamente en esta rama antes de aprobarla.
+          add-paths: src/content/ediciones/
+          delete-branch: true

@@ -1,0 +1,97 @@
+---
+import Base from '../layouts/Base.astro';
+import fuentes from '../../scripts/fuentes.json';
+
+const porCategoria = fuentes.fuentes.reduce<Record<string, string[]>>((acc, f) => {
+  (acc[f.categoria] ??= []).push(f.nombre);
+  return acc;
+}, {});
+
+const ETIQUETAS: Record<string, string> = {
+  oficial: 'Blogs oficiales de laboratorios y empresas',
+  medio: 'Medios especializados',
+  investigacion: 'Investigación',
+  comunidad: 'Comunidad',
+  espanol: 'Medios en español',
+};
+---
+
+<Base
+  titulo="Acerca de"
+  descripcion="Cómo se recopila, se ordena y se publica cada edición de Semana IA."
+>
+  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+    <header class="border-b border-[var(--color-linea)] pb-10">
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Cómo se hace</h1>
+      <p class="mt-5 max-w-[46ch] text-xl leading-snug text-[var(--color-apunte)] sm:text-2xl">
+        Un proceso automático abierto, revisado a mano antes de publicarse.
+      </p>
+    </header>
+
+    <section class="entra grid gap-x-10 border-b border-[var(--color-linea)] py-12 md:grid-cols-[11rem_1fr]">
+      <h2 class="meta mb-6 self-start text-xs uppercase tracking-[0.18em] text-[var(--color-senal)] md:sticky md:top-8 md:mb-0">
+        El proceso
+      </h2>
+
+      <div class="max-w-[62ch] text-lg leading-relaxed [&>p+p]:mt-5">
+        <p>
+          Cada lunes por la mañana, un proceso automático recorre las fuentes listadas más abajo y
+          recoge todo lo publicado durante los siete días anteriores.
+        </p>
+        <p>
+          Después descarta lo que no trata de inteligencia artificial, agrupa las noticias que
+          cuentan la misma historia y las ordena por relevancia. Que varios medios independientes
+          cubran algo es la señal más fiable de que importa, así que eso es lo que más puntúa.
+        </p>
+        <p>
+          Con las mejores se redacta un borrador de la edición y se abre una propuesta de cambio en
+          el repositorio. Nada llega a esta web sin que una persona la haya revisado y aprobado
+          antes.
+        </p>
+      </div>
+    </section>
+
+    <section class="entra grid gap-x-10 border-b border-[var(--color-linea)] py-12 md:grid-cols-[11rem_1fr]">
+      <h2 class="meta mb-6 self-start text-xs uppercase tracking-[0.18em] text-[var(--color-senal)] md:sticky md:top-8 md:mb-0">
+        Los resúmenes
+      </h2>
+
+      <div class="max-w-[62ch] text-lg leading-relaxed [&>p+p]:mt-5">
+        <p>
+          Los resúmenes en español los escribe un modelo de lenguaje a partir del titular y del
+          extracto que publica cada medio. No sustituyen al artículo original: son una forma de
+          decidir qué merece tu tiempo.
+        </p>
+        <p>
+          Cada entrada enlaza siempre a su fuente. Si algo te interesa, léelo allí. Y si un resumen
+          no se corresponde con lo que dice el artículo, es un error nuestro, no del medio.
+        </p>
+      </div>
+    </section>
+
+    <section class="entra grid gap-x-10 py-12 md:grid-cols-[11rem_1fr]">
+      <h2 class="meta mb-6 self-start text-xs uppercase tracking-[0.18em] text-[var(--color-senal)] md:sticky md:top-8 md:mb-0">
+        Las fuentes
+      </h2>
+
+      <div>
+        <p class="max-w-[62ch] text-lg leading-relaxed">
+          {fuentes.fuentes.length} fuentes públicas, todas por RSS o API abierta.
+        </p>
+
+        <dl class="mt-8">
+          {
+            Object.entries(porCategoria).map(([categoria, nombres], i) => (
+              <div class:list={[i > 0 && 'mt-6 border-t border-[var(--color-linea)] pt-6']}>
+                <dt class="meta text-xs uppercase tracking-[0.14em] text-[var(--color-apunte)]">
+                  {ETIQUETAS[categoria] ?? categoria}
+                </dt>
+                <dd class="mt-2 leading-relaxed">{nombres.join(' · ')}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </section>
+  </div>
+</Base>

@@ -1,0 +1,72 @@
+---
+import '../styles/global.css';
+import Cabecera from '../components/Cabecera.astro';
+import Pie from '../components/Pie.astro';
+
+interface Props {
+  titulo: string;
+  descripcion: string;
+  /** Marca la portada para que los buscadores no la traten como duplicado de la ultima edicion. */
+  canonica?: string;
+}
+
+const { titulo, descripcion, canonica } = Astro.props;
+const url = new URL(canonica ?? Astro.url.pathname, Astro.site);
+const tituloCompleto = titulo === 'Semana IA' ? titulo : `${titulo} · Semana IA`;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{tituloCompleto}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={url} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Semana IA" />
+    <meta property="og:title" content={tituloCompleto} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={url} />
+    <meta property="og:locale" content="es_ES" />
+    <meta name="twitter:card" content="summary" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" type="application/rss+xml" title="Semana IA" href="/rss.xml" />
+    <meta name="generator" content={Astro.generator} />
+
+    <script is:inline>
+      // Se ejecuta antes de pintar para que no haya un fogonazo blanco al cargar
+      // con el tema oscuro activo.
+      (() => {
+        try {
+          const guardado = localStorage.getItem('tema');
+          const oscuro = guardado
+            ? guardado === 'oscuro'
+            : matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.dataset.tema = oscuro ? 'oscuro' : 'claro';
+        } catch {
+          /* Modo privado sin acceso a localStorage: se queda con el tema por defecto. */
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="min-h-[100dvh] flex flex-col">
+    <a
+      href="#contenido"
+      class="meta sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:bg-[var(--color-tinta)] focus:text-[var(--color-papel)] focus:px-4 focus:py-2 focus:text-sm"
+    >
+      Saltar al contenido
+    </a>
+
+    <Cabecera />
+
+    <main id="contenido" class="flex-1">
+      <slot />
+    </main>
+
+    <Pie />
+  </body>
+</html>

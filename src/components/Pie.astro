@@ -1,0 +1,24 @@
+---
+const ano = new Date().getFullYear();
+---
+
+<footer class="mt-24 border-t border-[var(--color-linea)]">
+  <div
+    class="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-8"
+  >
+    <div class="max-w-md">
+      <p class="text-lg font-semibold tracking-tight">Semana IA</p>
+      <p class="meta mt-2 text-sm leading-relaxed text-[var(--color-apunte)]">
+        Cada lunes, lo que ha pasado en inteligencia artificial durante la semana anterior.
+        Recopilado automáticamente de fuentes públicas y revisado antes de publicarse.
+      </p>
+    </div>
+
+    <div class="meta flex flex-col gap-2 text-sm text-[var(--color-apunte)]">
+      <a href="/rss.xml" class="no-underline hover:text-[var(--color-senal)]">Feed RSS</a>
+      <a href="/archivo" class="no-underline hover:text-[var(--color-senal)]">Todas las ediciones</a>
+      <a href="/acerca-de" class="no-underline hover:text-[var(--color-senal)]">Cómo se hace</a>
+      <p class="mt-2 text-xs">{ano} · Los enlaces apuntan a sus medios originales</p>
+    </div>
+  </div>
+</footer>

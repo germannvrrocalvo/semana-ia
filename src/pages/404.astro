@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base titulo="Página no encontrada" descripcion="Esta dirección no existe en Semana IA.">
+  <div class="mx-auto flex max-w-6xl flex-col items-start px-5 py-24 sm:px-8 sm:py-32">
+    <p class="meta text-xs uppercase tracking-[0.2em] text-[var(--color-senal)]">Error 404</p>
+    <h1 class="mt-4 max-w-[20ch] text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+      Esta dirección no existe
+    </h1>
+    <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-[var(--color-apunte)]">
+      Puede que la edición que buscas nunca llegara a publicarse, o que el enlace esté mal copiado.
+    </p>
+    <a
+      href="/"
+      class="meta mt-8 border border-[var(--color-tinta)] bg-[var(--color-tinta)] px-5 py-2.5 text-sm text-[var(--color-papel)] no-underline transition-colors hover:border-[var(--color-senal)] hover:bg-[var(--color-senal)]"
+    >
+      Ir a la última edición
+    </a>
+  </div>
+</Base>

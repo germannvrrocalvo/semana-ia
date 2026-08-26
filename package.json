@@ -1,0 +1,32 @@
+{
+  "name": "semana-ia",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "noticias": "node scripts/fetch-news.mjs",
+    "edicion": "node scripts/build-issue.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.120.0",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/newsreader": "^5.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.2.7",
+    "fast-xml-parser": "^5.11.0",
+    "tailwindcss": "^4.3.3"
+  },
+  "allowScripts": {
+    "esbuild": true
+  },
+  "description": "Boletín semanal en español sobre inteligencia artificial",
+  "private": true
+}

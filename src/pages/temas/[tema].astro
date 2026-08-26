@@ -1,0 +1,72 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { aSlug, fechaLarga } from '../../lib/secciones';
+
+export const getStaticPaths = (async () => {
+  const ediciones = (await getCollection('ediciones')).sort(
+    (a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf(),
+  );
+
+  const porTema = new Map<string, { etiqueta: string; ediciones: typeof ediciones }>();
+  for (const e of ediciones) {
+    for (const tema of e.data.temas) {
+      const slug = aSlug(tema);
+      if (!slug) continue;
+      const previo = porTema.get(slug);
+      porTema.set(slug, {
+        etiqueta: previo?.etiqueta ?? tema,
+        ediciones: [...(previo?.ediciones ?? []), e],
+      });
+    }
+  }
+
+  return [...porTema].map(([slug, { etiqueta, ediciones }]) => ({
+    params: { tema: slug },
+    props: { etiqueta, ediciones },
+  }));
+}) satisfies GetStaticPaths;
+
+const { etiqueta, ediciones } = Astro.props;
+---
+
+<Base
+  titulo={`Tema: ${etiqueta}`}
+  descripcion={`Ediciones de Semana IA marcadas con el tema ${etiqueta}.`}
+>
+  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+    <header class="border-b border-[var(--color-linea)] pb-10">
+      <p class="meta text-xs uppercase tracking-[0.2em] text-[var(--color-senal)]">Tema</p>
+      <h1 class="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">{etiqueta}</h1>
+      <p class="meta mt-4 text-sm text-[var(--color-apunte)]">
+        {ediciones.length}
+        {ediciones.length === 1 ? 'edición' : 'ediciones'}
+      </p>
+    </header>
+
+    <ul class="border-b border-[var(--color-linea)] py-4">
+      {
+        ediciones.map((e, i) => (
+          <li
+            class:list={['entra py-8', i > 0 && 'border-t border-[var(--color-linea)]']}
+          >
+            <a href={`/ediciones/${e.data.semana}`} class="group block no-underline">
+              <span class="meta text-xs text-[var(--color-apunte)]">{fechaLarga(e.data.fecha)}</span>
+              <span class="mt-2 block max-w-[52ch] text-xl leading-snug transition-colors group-hover:text-[var(--color-senal)]">
+                {e.data.destacado}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <a
+      href="/temas"
+      class="meta mt-8 inline-block text-sm text-[var(--color-senal)] underline-offset-4 hover:underline"
+    >
+      Ver todos los temas
+    </a>
+  </div>
+</Base>

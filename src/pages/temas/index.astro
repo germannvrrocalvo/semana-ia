@@ -1,0 +1,60 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { aSlug } from '../../lib/secciones';
+
+const ediciones = await getCollection('ediciones');
+
+const recuento = new Map<string, { etiqueta: string; total: number }>();
+for (const e of ediciones) {
+  for (const tema of e.data.temas) {
+    const slug = aSlug(tema);
+    if (!slug) continue;
+    const previo = recuento.get(slug);
+    recuento.set(slug, { etiqueta: previo?.etiqueta ?? tema, total: (previo?.total ?? 0) + 1 });
+  }
+}
+
+const temas = [...recuento].sort((a, b) => b[1].total - a[1].total || a[0].localeCompare(b[0]));
+---
+
+<Base
+  titulo="Temas"
+  descripcion="Los ejes que se repiten semana tras semana en las noticias de inteligencia artificial."
+>
+  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+    <header class="border-b border-[var(--color-linea)] pb-10">
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Temas</h1>
+      <p class="mt-4 max-w-[52ch] leading-relaxed text-[var(--color-apunte)]">
+        Cada edición se etiqueta con los ejes que la han dominado. Aquí puedes seguir uno a lo
+        largo del tiempo.
+      </p>
+    </header>
+
+    {
+      temas.length > 0 ? (
+        <ul class="grid gap-px border-b border-[var(--color-linea)] bg-[var(--color-linea)] sm:grid-cols-2 lg:grid-cols-3">
+          {temas.map(([slug, { etiqueta, total }]) => (
+            <li>
+              <a
+                href={`/temas/${slug}`}
+                class="group flex items-baseline justify-between gap-4 bg-[var(--color-panel)] px-6 py-5 no-underline transition-colors hover:bg-[var(--color-papel)]"
+              >
+                <span class="text-lg transition-colors group-hover:text-[var(--color-senal)]">
+                  {etiqueta}
+                </span>
+                <span class="meta text-xs text-[var(--color-apunte)]">
+                  {total} {total === 1 ? 'edición' : 'ediciones'}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="py-12 leading-relaxed text-[var(--color-apunte)]">
+          Todavía no hay temas: aparecerán en cuanto se publique la primera edición.
+        </p>
+      )
+    }
+  </div>
+</Base>

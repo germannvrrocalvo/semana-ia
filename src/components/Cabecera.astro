@@ -1,0 +1,74 @@
+---
+const ruta = Astro.url.pathname;
+const enlaces = [
+  { href: '/archivo', texto: 'Archivo' },
+  { href: '/temas', texto: 'Temas' },
+  { href: '/acerca-de', texto: 'Acerca de' },
+];
+const activo = (href: string) => ruta === href || ruta.startsWith(`${href}/`);
+---
+
+<header class="border-b border-[var(--color-linea)]">
+  <nav
+    class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-5 sm:px-8"
+    aria-label="Principal"
+  >
+    <a href="/" class="group flex items-baseline gap-2.5 no-underline">
+      <span class="text-xl font-semibold tracking-tight">Semana IA</span>
+      <span
+        class="meta hidden text-[0.7rem] uppercase tracking-[0.18em] text-[var(--color-apunte)] sm:inline"
+      >
+        Boletín semanal
+      </span>
+    </a>
+
+    <div class="flex items-center gap-5 sm:gap-7">
+      {
+        enlaces.map((e) => (
+          <a
+            href={e.href}
+            aria-current={activo(e.href) ? 'page' : undefined}
+            class:list={[
+              'meta text-sm no-underline transition-colors hover:text-[var(--color-senal)]',
+              activo(e.href) ? 'text-[var(--color-senal)]' : 'text-[var(--color-apunte)]',
+            ]}
+          >
+            {e.texto}
+          </a>
+        ))
+      }
+
+      <button
+        type="button"
+        id="cambiar-tema"
+        class="meta -mr-1 cursor-pointer border border-[var(--color-linea)] px-2.5 py-1 text-xs text-[var(--color-apunte)] transition-colors hover:border-[var(--color-senal)] hover:text-[var(--color-senal)]"
+        aria-live="polite"
+      >
+        <span class="sr-only">Cambiar entre tema claro y oscuro. Tema actual:</span>
+        <span data-etiqueta-tema>claro</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<script>
+  const boton = document.getElementById('cambiar-tema');
+  const etiqueta = boton?.querySelector('[data-etiqueta-tema]');
+
+  const pintar = () => {
+    if (etiqueta) etiqueta.textContent = document.documentElement.dataset.tema ?? 'claro';
+  };
+
+  boton?.addEventListener('click', () => {
+    const nuevo = document.documentElement.dataset.tema === 'oscuro' ? 'claro' : 'oscuro';
+    document.documentElement.dataset.tema = nuevo;
+    try {
+      localStorage.setItem('tema', nuevo);
+    } catch {
+      /* Sin almacenamiento el cambio dura lo que la pestana. */
+    }
+    pintar();
+  });
+
+  pintar();
+</script>

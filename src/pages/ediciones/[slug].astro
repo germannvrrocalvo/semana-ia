@@ -1,0 +1,54 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Edicion from '../../components/Edicion.astro';
+
+export const getStaticPaths = (async () => {
+  const ediciones = (await getCollection('ediciones')).sort(
+    (a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf(),
+  );
+
+  return ediciones.map((edicion, i) => ({
+    params: { slug: edicion.data.semana },
+    // Las vecinas se calculan aqui, donde ya tenemos la lista ordenada.
+    props: { edicion, siguiente: ediciones[i - 1], anterior: ediciones[i + 1] },
+  }));
+}) satisfies GetStaticPaths;
+
+const { edicion, siguiente, anterior } = Astro.props;
+const { Content } = await render(edicion);
+---
+
+<Base titulo={edicion.data.titulo} descripcion={edicion.data.destacado}>
+  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+    <Edicion edicion={edicion} nivel="h1">
+      <Content />
+    </Edicion>
+
+    <nav class="meta flex flex-wrap justify-between gap-4 pt-10 text-sm" aria-label="Otras ediciones">
+      {
+        anterior ? (
+          <a
+            href={`/ediciones/${anterior.data.semana}`}
+            class="text-[var(--color-apunte)] no-underline hover:text-[var(--color-senal)]"
+          >
+            Semana anterior: {anterior.data.titulo}
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        siguiente && (
+          <a
+            href={`/ediciones/${siguiente.data.semana}`}
+            class="text-[var(--color-apunte)] no-underline hover:text-[var(--color-senal)]"
+          >
+            Semana siguiente: {siguiente.data.titulo}
+          </a>
+        )
+      }
+    </nav>
+  </div>
+</Base>

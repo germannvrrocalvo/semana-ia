@@ -1,0 +1,48 @@
+{
+  "_comentario": "Catalogo de fuentes de Semana IA. Edita este archivo para anadir o quitar fuentes; no hace falta tocar codigo. 'peso' va de 1 a 5 y sube la relevancia de todo lo que publique esa fuente. 'tipo' puede ser 'rss' o 'hn'.",
+  "_comentario_anthropic": "Anthropic no publica RSS propio. Se probo su cobertura via Google News y devolvia blogs de SEO de baja calidad, asi que se descarto: TechCrunch, The Verge y Ars Technica ya cubren sus lanzamientos.",
+  "fuentes": [
+    { "id": "openai",        "nombre": "OpenAI",              "tipo": "rss", "url": "https://openai.com/news/rss.xml",                              "peso": 5, "categoria": "oficial" },
+    { "id": "deepmind",      "nombre": "Google DeepMind",     "tipo": "rss", "url": "https://deepmind.google/blog/rss.xml",                         "peso": 5, "categoria": "oficial" },
+    { "id": "google-ai",     "nombre": "Google",              "tipo": "rss", "url": "https://blog.google/technology/ai/rss/",                       "peso": 4, "categoria": "oficial" },
+    { "id": "meta-ai",       "nombre": "Meta AI",             "tipo": "rss", "url": "https://engineering.fb.com/feed/",                                "peso": 4, "categoria": "oficial" },
+    { "id": "microsoft-ai",  "nombre": "Microsoft",           "tipo": "rss", "url": "https://news.microsoft.com/source/topics/ai/feed/",                         "peso": 4, "categoria": "oficial" },
+    { "id": "nvidia",        "nombre": "NVIDIA",              "tipo": "rss", "url": "https://blogs.nvidia.com/feed/",                               "peso": 3, "categoria": "oficial" },
+    { "id": "mistral",       "nombre": "Mistral AI",          "tipo": "rss", "url": "https://mistral.ai/rss.xml",                             "peso": 4, "categoria": "oficial" },
+    { "id": "huggingface",   "nombre": "Hugging Face",        "tipo": "rss", "url": "https://huggingface.co/blog/feed.xml",                         "peso": 3, "categoria": "oficial" },
+
+    { "id": "techcrunch",    "nombre": "TechCrunch",          "tipo": "rss", "url": "https://techcrunch.com/category/artificial-intelligence/feed/", "peso": 4, "categoria": "medio" },
+    { "id": "theverge",      "nombre": "The Verge",           "tipo": "rss", "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", "peso": 4, "categoria": "medio" },
+    { "id": "arstechnica",   "nombre": "Ars Technica",        "tipo": "rss", "url": "https://arstechnica.com/ai/feed/",                             "peso": 4, "categoria": "medio" },
+    { "id": "mit-tr",        "nombre": "MIT Technology Review","tipo": "rss","url": "https://www.technologyreview.com/feed/",                        "peso": 4, "categoria": "medio" },
+    { "id": "venturebeat",   "nombre": "VentureBeat",         "tipo": "rss", "url": "https://venturebeat.com/category/ai/feed/",                    "peso": 3, "categoria": "medio" },
+    { "id": "wired-ai",      "nombre": "WIRED",               "tipo": "rss", "url": "https://www.wired.com/feed/tag/ai/latest/rss",                 "peso": 3, "categoria": "medio" },
+
+    { "id": "arxiv-ai",      "nombre": "arXiv cs.AI",         "tipo": "rss", "url": "https://rss.arxiv.org/rss/cs.AI", "medio": "arxiv",             "peso": 2, "categoria": "investigacion" },
+    { "id": "arxiv-cl",      "nombre": "arXiv cs.CL",         "tipo": "rss", "url": "https://rss.arxiv.org/rss/cs.CL", "medio": "arxiv",             "peso": 2, "categoria": "investigacion" },
+
+    { "id": "hackernews",    "nombre": "Hacker News",         "tipo": "hn",  "url": "https://hn.algolia.com/api/v1/search_by_date",                 "peso": 3, "categoria": "comunidad", "minPuntos": 150 },
+
+    { "id": "xataka",        "nombre": "Xataka",              "tipo": "rss", "url": "https://www.xataka.com/feedburner.xml",      "peso": 3, "categoria": "espanol" },
+    { "id": "hipertextual",  "nombre": "Hipertextual",        "tipo": "rss", "url": "https://hipertextual.com/feed",                                "peso": 2, "categoria": "espanol" }
+  ],
+
+  "_comentario_temas": "Cada noticia se asigna a la PRIMERA seccion cuyas palabras clave aparezcan en su titulo o extracto. Si no encaja en ninguna, cae en 'producto'.",
+  "secciones": [
+    { "id": "modelos",       "titulo": "Modelos y lanzamientos", "claves": ["lanza", "presenta", "unveil", "launch", "release", "introducing", "announce", "gpt-", "claude", "gemini", "llama", "mistral", "qwen", "deepseek", "grok", "modelo", "model", "benchmark", "sota", "multimodal", "razonamiento", "reasoning"] },
+    { "id": "producto",      "titulo": "Producto y herramientas", "claves": ["app", "aplicacion", "herramienta", "tool", "feature", "funcion", "api", "sdk", "agente", "agent", "asistente", "assistant", "copilot", "chatbot", "integra", "disponible"] },
+    { "id": "investigacion", "titulo": "Investigacion",           "claves": ["arxiv", "paper", "estudio", "study", "research", "investigacion", "hallazgo", "experiment", "interpretab", "alineamiento", "alignment", "safety", "seguridad de modelos"] },
+    { "id": "negocio",       "titulo": "Negocio y financiacion",  "claves": ["ronda", "funding", "raise", "raised", "valuation", "valoracion", "millones", "billion", "million", "adquiere", "acquisition", "acquires", "ipo", "revenue", "ingresos", "inversion", "invest", "startup", "contrato", "deal", "partnership", "acuerdo"] },
+    { "id": "regulacion",    "titulo": "Regulacion",              "claves": ["regula", "regulation", "ley", "law", "eu ai act", "ai act", "demanda", "lawsuit", "copyright", "derechos de autor", "privacidad", "privacy", "gdpr", "gobierno", "government", "senate", "congress", "comision europea", "tribunal", "court", "multa", "fine", "prohib", "ban"] },
+    { "id": "open-source",   "titulo": "Open source",             "claves": ["open source", "codigo abierto", "open-weight", "pesos abiertos", "apache 2", "mit license", "github", "hugging face", "open model", "self-host"] }
+  ],
+
+  "_comentario_realce": "Palabras que suben la puntuacion de una noticia por senalar que algo importante ha pasado de verdad.",
+  "palabrasFuertes": ["lanza", "launch", "release", "unveil", "introducing", "announce", "gpt-", "claude", "gemini", "llama", "acquires", "adquiere", "ronda", "funding", "ai act", "demanda", "lawsuit", "open source", "codigo abierto", "sota", "benchmark", "record"],
+
+  "_comentario_penalizadas": "Patrones (regex, sin distinguir mayusculas) que restan puntos a las entradas de blogs OFICIALES. Filtran los casos de exito comerciales, que no son noticia.",
+  "patronesPromocionales": ["^how ", "^why ", "using (chatgpt|codex|claude|gemini|copilot)", "[0-9]+% (faster|more|using|less)", "customer story", "case study", "success story"],
+
+  "_comentario_ruido": "Si el titulo contiene alguna de estas, la noticia se descarta. Filtra publirreportajes y contenido de relleno.",
+  "palabrasRuido": ["deal of the day", "best deals", "discount", "coupon", "sponsored", "black friday", "gift guide", "how to watch", "horoscop", "podcast episode", "the download:", "weekly roundup", "esta semana en"]
+}

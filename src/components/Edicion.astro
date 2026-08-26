@@ -1,0 +1,107 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { agruparPorSeccion, dominio, fechaCorta } from '../lib/secciones';
+
+interface Props {
+  edicion: CollectionEntry<'ediciones'>;
+  /** La portada usa h1 para el titulo de la edicion; el archivo, h2. */
+  nivel?: 'h1' | 'h2';
+}
+
+const { edicion, nivel = 'h1' } = Astro.props;
+const { data } = edicion;
+const secciones = agruparPorSeccion(data.entradas);
+const fuentes = new Set(data.entradas.map((e) => e.fuente)).size;
+const Titulo = nivel;
+---
+
+<article>
+  <header class="border-b border-[var(--color-linea)] pb-10">
+    <p class="meta text-xs uppercase tracking-[0.2em] text-[var(--color-senal)]">
+      Semana {data.semana.split('-W')[1]} de {data.semana.split('-W')[0]}
+    </p>
+
+    <Titulo class="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight sm:text-4xl">
+      {data.titulo}
+    </Titulo>
+
+    <p class="mt-5 max-w-[46ch] text-xl leading-snug text-[var(--color-apunte)] sm:text-2xl">
+      {data.destacado}
+    </p>
+
+    <p class="meta mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--color-apunte)]">
+      <span>{data.entradas.length} noticias</span>
+      <span aria-hidden="true">/</span>
+      <span>{fuentes} medios</span>
+      {
+        data.fuentesConsultadas && (
+          <>
+            <span aria-hidden="true">/</span>
+            <span>{data.fuentesConsultadas} fuentes rastreadas</span>
+          </>
+        )
+      }
+    </p>
+  </header>
+
+  {
+    /* La apertura solo existe cuando alguien (Claude o tu) ha escrito el cuerpo del Markdown. */
+    Astro.slots.has('default') && (
+      <div class="entra max-w-[62ch] border-b border-[var(--color-linea)] py-10 text-lg leading-relaxed [&_p+p]:mt-4">
+        <slot />
+      </div>
+    )
+  }
+
+  {
+    secciones.map((seccion) => (
+      <section class="entra grid gap-x-10 border-b border-[var(--color-linea)] py-12 md:grid-cols-[11rem_1fr]">
+        <h2 class="meta mb-6 self-start text-xs uppercase tracking-[0.18em] text-[var(--color-senal)] md:sticky md:top-8 md:mb-0">
+          {seccion.titulo}
+        </h2>
+
+        <div>
+          {seccion.entradas.map((entrada, i) => (
+            <div
+              class:list={[
+                'group',
+                i > 0 && 'mt-9 border-t border-[var(--color-linea)] pt-9',
+              ]}
+            >
+              <h3 class="text-xl leading-snug font-medium sm:text-2xl">
+                <a
+                  href={entrada.url}
+                  rel="noopener noreferrer external"
+                  target="_blank"
+                  class="no-underline decoration-[var(--color-senal)] decoration-1 underline-offset-4 transition-colors group-hover:text-[var(--color-senal)] group-hover:underline"
+                >
+                  {entrada.titulo}
+                </a>
+              </h3>
+
+              {entrada.resumen && (
+                <p class="mt-3 max-w-[62ch] leading-relaxed text-[var(--color-apunte)]">
+                  {entrada.resumen}
+                </p>
+              )}
+
+              <p class="meta mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-[var(--color-apunte)]">
+                <span class="text-[var(--color-tinta)]">{entrada.fuente}</span>
+                <span aria-hidden="true">/</span>
+                <time datetime={entrada.fecha.toISOString()}>{fechaCorta(entrada.fecha)}</time>
+                <span aria-hidden="true">/</span>
+                <span>{dominio(entrada.url)}</span>
+                {entrada.tambienEn.length > 0 && (
+                  <>
+                    <span aria-hidden="true">/</span>
+                    <span>también en {entrada.tambienEn.join(', ')}</span>
+                  </>
+                )}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+    ))
+  }
+</article>

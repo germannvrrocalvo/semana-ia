@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import { fechaLarga } from '../lib/secciones';
+
+const ediciones = (await getCollection('ediciones')).sort(
+  (a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf(),
+);
+
+// Agrupadas por ano para que el archivo siga siendo navegable dentro de tres anos.
+const porAno = [
+  ...ediciones.reduce((mapa, e) => {
+    const ano = e.data.fecha.getUTCFullYear();
+    mapa.set(ano, [...(mapa.get(ano) ?? []), e]);
+    return mapa;
+  }, new Map<number, typeof ediciones>()),
+].sort((a, b) => b[0] - a[0]);
+
+const totalNoticias = ediciones.reduce((n, e) => n + e.data.entradas.length, 0);
+---
+
+<Base
+  titulo="Archivo"
+  descripcion="Todas las ediciones semanales de Semana IA, de la más reciente a la primera."
+>
+  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+    <header class="border-b border-[var(--color-linea)] pb-10">
+      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Archivo</h1>
+      <p class="meta mt-4 text-sm text-[var(--color-apunte)]">
+        {ediciones.length}
+        {ediciones.length === 1 ? 'edición' : 'ediciones'} · {totalNoticias} noticias
+      </p>
+    </header>
+
+    {
+      porAno.map(([ano, lista]) => (
+        <section class="entra grid gap-x-10 border-b border-[var(--color-linea)] py-12 md:grid-cols-[11rem_1fr]">
+          <h2 class="meta mb-6 self-start text-xs tracking-[0.18em] text-[var(--color-senal)] md:sticky md:top-8 md:mb-0">
+            {ano}
+          </h2>
+
+          <ul>
+            {lista.map((e, i) => (
+              <li class:list={[i > 0 && 'mt-8 border-t border-[var(--color-linea)] pt-8']}>
+                <a href={`/ediciones/${e.data.semana}`} class="group block no-underline">
+                  <span class="meta text-xs text-[var(--color-apunte)]">
+                    {fechaLarga(e.data.fecha)}
+                  </span>
+                  <span class="mt-2 block text-xl leading-snug transition-colors group-hover:text-[var(--color-senal)]">
+                    {e.data.destacado}
+                  </span>
+                  <span class="meta mt-2 block text-xs text-[var(--color-apunte)]">
+                    {e.data.entradas.length} noticias
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</Base>
