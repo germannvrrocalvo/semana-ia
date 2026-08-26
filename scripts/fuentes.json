@@ -40,8 +40,8 @@
   "_comentario_realce": "Palabras que suben la puntuacion de una noticia por senalar que algo importante ha pasado de verdad.",
   "palabrasFuertes": ["lanza", "launch", "release", "unveil", "introducing", "announce", "gpt-", "claude", "gemini", "llama", "acquires", "adquiere", "ronda", "funding", "ai act", "demanda", "lawsuit", "open source", "codigo abierto", "sota", "benchmark", "record"],
 
-  "_comentario_penalizadas": "Patrones (regex, sin distinguir mayusculas) que restan puntos a las entradas de blogs OFICIALES. Filtran los casos de exito comerciales, que no son noticia.",
-  "patronesPromocionales": ["^how ", "^why ", "using (chatgpt|codex|claude|gemini|copilot)", "[0-9]+% (faster|more|using|less)", "customer story", "case study", "success story"],
+  "_comentario_penalizadas": "Patrones (regex, sin distinguir mayusculas) que restan puntos a las entradas de blogs OFICIALES, cuyas entradas no pasan el filtro de relevancia de IA. Filtran dos cosas que no son noticia: casos de exito comerciales y listiculos de trucos. El feed de IA de Google, por ejemplo, publica articulos de estilo de vida.",
+  "patronesPromocionales": ["^how ", "^why ", "using (chatgpt|codex|claude|gemini|copilot)", "[0-9]+% (faster|more|using|less)", "customer story", "case study", "success story", "^[0-9]+ (ways|things|tips|reasons)", "^(cinco|seis|siete|ocho|nueve|diez|[0-9]+) (formas|maneras|claves|trucos|consejos)", "ways to use", "formas de usar", "^tips ", "guia para"],
 
   "_comentario_ruido": "Si el titulo contiene alguna de estas, la noticia se descarta. Filtra publirreportajes y contenido de relleno.",
   "palabrasRuido": ["deal of the day", "best deals", "discount", "coupon", "sponsored", "black friday", "gift guide", "how to watch", "horoscop", "podcast episode", "the download:", "weekly roundup", "esta semana en"]
