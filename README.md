@@ -4,7 +4,7 @@ Boletín semanal en español sobre inteligencia artificial. Cada lunes un proces
 recopila lo publicado durante los siete días anteriores, redacta un borrador y abre un Pull
 Request. Nada se publica sin que una persona lo apruebe.
 
-Sitio en producción: https://semana-ia.vercel.app
+Sitio en producción: https://semana-ia-sapiensias-projects.vercel.app
 
 ## Cómo funciona
 

@@ -6,9 +6,10 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  // Necesario para el sitemap, el RSS y las URL canonicas.
-  // Cambialo si algun dia pones un dominio propio.
-  site: 'https://semana-ia.vercel.app',
+  // Necesario para el sitemap, el RSS y las URL canonicas: Astro necesita saber
+  // el dominio final en tiempo de compilacion. Cambialo el dia que pongas un
+  // dominio propio, o el RSS seguira apuntando aqui.
+  site: 'https://semana-ia-sapiensias-projects.vercel.app',
 
   vite: {
     plugins: [tailwindcss()],
