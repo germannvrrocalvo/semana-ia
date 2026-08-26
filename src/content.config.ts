@@ -14,7 +14,14 @@ const ediciones = defineCollection({
     fecha: z.coerce.date(),
     /** Una frase con lo mas importante de la semana. Se usa como entradilla y en los metadatos. */
     destacado: z.string(),
-    temas: z.array(z.string()).default([]),
+    // Vocabulario cerrado: alimenta las paginas de /temas, que solo son utiles si
+    // las mismas etiquetas se repiten semana tras semana.
+    temas: z
+      .array(z.enum(['modelos', 'producto', 'investigacion', 'negocio', 'regulacion', 'open-source']))
+      .default([]),
+    // Libres y descriptivas de una semana concreta ("chips", "empleo"). Se muestran
+    // en la edicion, pero no generan paginas ni navegacion.
+    etiquetas: z.array(z.string()).default([]),
     generadoPor: z.enum(['claude', 'sin-ia', 'manual']).default('manual'),
     fuentesConsultadas: z.number().optional(),
     entradas: z

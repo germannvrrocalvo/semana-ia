@@ -42,6 +42,16 @@ const Titulo = nivel;
         )
       }
     </p>
+
+    {
+      data.etiquetas.length > 0 && (
+        <ul class="meta mt-4 flex flex-wrap gap-2 text-xs text-[var(--color-apunte)]">
+          {data.etiquetas.map((etiqueta) => (
+            <li class="border border-[var(--color-linea)] px-2 py-0.5">{etiqueta}</li>
+          ))}
+        </ul>
+      )
+    }
   </header>
 
   {

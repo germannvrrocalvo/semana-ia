@@ -20,6 +20,10 @@ const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DESTINO = join(RAIZ, 'src', 'content', 'ediciones');
 const MODELO = 'claude-opus-5';
 
+// Solo para dejar el coste anotado en el log. Precios por millon de tokens de
+// claude-opus-5; si cambias de modelo arriba, actualiza tambien estas cifras.
+const PRECIO = { entrada: 5, salida: 25 };
+
 const MESES = [
   'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
@@ -65,9 +69,9 @@ const ESQUEMA = {
       type: 'string',
       description: 'Dos o tres frases de contexto sobre la semana, en Markdown plano. Explica por qué importa lo que ha pasado, sin repetir literalmente el campo destacado.',
     },
-    temas: {
+    etiquetas: {
       type: 'array',
-      description: 'Entre dos y cuatro etiquetas en minúsculas y sin tildes que describan los ejes de la semana.',
+      description: 'Entre dos y cuatro etiquetas libres en minúsculas y sin tildes que describan los ejes concretos de esta semana (por ejemplo: chips, empleo, modelos abiertos). Son descriptivas y solo se muestran en la propia edición; la navegación del sitio no depende de ellas.',
       items: { type: 'string' },
     },
     entradas: {
@@ -83,7 +87,7 @@ const ESQUEMA = {
       },
     },
   },
-  required: ['destacado', 'apertura', 'temas', 'entradas'],
+  required: ['destacado', 'apertura', 'etiquetas', 'entradas'],
   additionalProperties: false,
 };
 
@@ -127,6 +131,14 @@ async function redactar(datos) {
     throw new Error(`El modelo declino la peticion (${respuesta.stop_details?.category ?? 'sin categoria'})`);
   }
 
+  // El coste por edicion es la duda recurrente al mantener esto, asi que queda
+  // anotado en el log de cada ejecucion en vez de haber que estimarlo a mano.
+  const { input_tokens: entrada = 0, output_tokens: salida = 0 } = respuesta.usage ?? {};
+  const coste = (entrada / 1e6) * PRECIO.entrada + (salida / 1e6) * PRECIO.salida;
+  console.error(
+    `Modelo ${MODELO}: ${entrada} tokens de entrada, ${salida} de salida. Coste aproximado: ${coste.toFixed(4)} USD.`,
+  );
+
   const texto = respuesta.content.find((b) => b.type === 'text')?.text;
   if (!texto) throw new Error('La respuesta no traia texto');
   return JSON.parse(texto);
@@ -157,7 +169,12 @@ function componerMarkdown(datos, redaccion) {
   });
 
   const conIA = Boolean(redaccion);
-  const temas = conIA ? redaccion.temas : [...new Set(datos.noticias.map((n) => n.seccion))];
+  // Los temas alimentan la navegacion de /temas, asi que salen siempre de las
+  // secciones reales de las noticias: un vocabulario fijo de seis valores. Si los
+  // eligiera el modelo, cada semana inventaria palabras nuevas y el archivo
+  // acabaria lleno de paginas de tema con una sola edicion dentro.
+  const temas = [...new Set(datos.noticias.map((n) => n.seccion))];
+  const etiquetas = conIA ? (redaccion.etiquetas ?? []) : [];
   const destacado = conIA
     ? redaccion.destacado
     : `${datos.noticias.length} noticias de IA de la semana, recopiladas de ${new Set(datos.noticias.map((n) => n.fuente)).size} fuentes`;
@@ -169,6 +186,7 @@ function componerMarkdown(datos, redaccion) {
     'fecha: ' + rango.domingo.toISOString().slice(0, 10),
     'destacado: ' + yaml(destacado),
     'temas: [' + temas.map(yaml).join(', ') + ']',
+    ...(etiquetas.length ? ['etiquetas: [' + etiquetas.map(yaml).join(', ') + ']'] : []),
     'generadoPor: ' + yaml(conIA ? 'claude' : 'sin-ia'),
     'fuentesConsultadas: ' + datos.informe.filter((f) => f.estado === 'ok').length,
     'entradas:',
