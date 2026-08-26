@@ -28,6 +28,9 @@ const ediciones = defineCollection({
       .array(
         z.object({
           titulo: z.string(),
+          // El titular tal y como lo publico la fuente. Solo existe cuando el
+          // titular mostrado es una traduccion, y sirve para poder cotejarlo.
+          tituloOriginal: z.string().optional(),
           // Las URL llegan de feeds de terceros, que son contenido no confiable.
           // z.url() por si sola acepta javascript: y data:, que en un href son
           // ejecutables; aqui solo pasan http y https.

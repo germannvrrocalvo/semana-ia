@@ -80,9 +80,14 @@ const ESQUEMA = {
         type: 'object',
         properties: {
           url: { type: 'string', description: 'La URL exacta de la noticia, copiada tal cual de la entrada original.' },
+          titular: {
+            type: 'string',
+            description:
+              'El titular traducido al español, máximo 95 caracteres. Fiel al original: no añadas datos que el titular no diga ni lo conviertas en clickbait. Los nombres de empresas, productos y modelos se dejan en su idioma original (Gemini 3.5 Transcribe, ChatGPT Work, Granite 4.2). Sin punto final.',
+          },
           resumen: { type: 'string', description: 'Dos o tres frases en español explicando la noticia y por qué importa. Sin adjetivos publicitarios.' },
         },
-        required: ['url', 'resumen'],
+        required: ['url', 'titular', 'resumen'],
         additionalProperties: false,
       },
     },
@@ -100,6 +105,7 @@ Reglas de estilo:
 - No inventes datos, cifras ni declaraciones que no estén en el material que recibes. Si un titular es ambiguo, descríbelo con cautela en vez de rellenar huecos.
 - Si una noticia es un anuncio comercial disfrazado de noticia, dilo.
 - Cada resumen debe explicar qué ha pasado y por qué importa, no repetir el titular con otras palabras.
+- Traduce todos los titulares al español. La mayoría del material llega en inglés y el lector no tiene por qué saberlo. Traduce el sentido, no palabra por palabra: los titulares en inglés abusan de juegos de palabras que en español no funcionan. Sé fiel: un titular traducido no puede afirmar más de lo que afirma el original.
 
 Devuelve una entrada por cada noticia recibida, con su URL exacta.`;
 
@@ -151,12 +157,17 @@ const yaml = (v) => `"${String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`
 
 function componerMarkdown(datos, redaccion) {
   const rango = rangoSemana(datos.semana);
-  const porUrl = new Map((redaccion?.entradas ?? []).map((e) => [e.url, e.resumen]));
+  const porUrl = new Map((redaccion?.entradas ?? []).map((e) => [e.url, e]));
 
   const entradas = datos.noticias.map((n) => {
-    const resumen = porUrl.get(n.url) ?? n.extracto ?? '';
+    const redactada = porUrl.get(n.url);
+    const resumen = redactada?.resumen ?? n.extracto ?? '';
+    // El titular en español es el que se lee; el original se conserva porque es
+    // el que aparece al otro lado del enlace y hace falta para poder cotejarlo.
+    const titular = redactada?.titular ?? n.titulo;
     return [
-      '  - titulo: ' + yaml(n.titulo),
+      '  - titulo: ' + yaml(titular),
+      titular !== n.titulo ? '    tituloOriginal: ' + yaml(n.titulo) : null,
       '    url: ' + yaml(n.url),
       '    fuente: ' + yaml(n.fuente),
       '    fecha: ' + n.fecha,
