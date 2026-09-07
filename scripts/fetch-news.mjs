@@ -53,6 +53,20 @@ export function idSemana(fecha = new Date()) {
   return `${d.getUTCFullYear()}-W${String(semana).padStart(2, '0')}`;
 }
 
+/**
+ * Semana ISO que cubre una edicion generada en `fecha`: la ultima ya terminada.
+ * El robot corre los lunes por la manana, asi que en ese momento la semana en
+ * curso no tiene noticias todavia; lo que se publica es lo de los siete dias
+ * anteriores. Se toma el domingo previo para no titular la edicion con una
+ * semana que aun no ha pasado (y para que un lanzamiento retrasado un dia o dos
+ * siga nombrando la misma semana).
+ */
+export function semanaCerrada(fecha = new Date()) {
+  const domingo = new Date(fecha);
+  domingo.setUTCDate(domingo.getUTCDate() - (domingo.getUTCDay() || 7));
+  return idSemana(domingo);
+}
+
 const sinAcentos = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 const normalizar = (s) => sinAcentos(String(s ?? '')).toLowerCase();
 
@@ -326,7 +340,7 @@ export async function recolectar({ dias = 7, maximo = 24 } = {}) {
     .slice(0, maximo);
 
   return {
-    semana: idSemana(ahora),
+    semana: semanaCerrada(ahora),
     generadoEn: ahora.toISOString(),
     ventanaDias: dias,
     secciones: config.secciones,
