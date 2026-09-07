@@ -1,8 +1,9 @@
 name: Edición semanal
 
 # Cada lunes a las 06:00 UTC (08:00 en la España peninsular). El robot recopila
-# las noticias de la semana anterior y abre un Pull Request con la edición.
-# Nunca publica directamente: la revisión humana es el paso que falta a propósito.
+# las noticias de la semana anterior y publica la edición directamente en main.
+# El filtro es `npm run build`: si el esquema rechaza la edición, el trabajo falla
+# y no se publica nada.
 on:
   schedule:
     - cron: '23 6 * * 1'
@@ -53,35 +54,15 @@ jobs:
       - name: Comprobar que el sitio sigue compilando
         run: npm run build
 
-      -      - name: Abrir el Pull Request
--        uses: peter-evans/create-pull-request@v8
--        with:
--          branch: edicion/${{ steps.edicion.outputs.semana }}
--          commit-message: 'Edición ${{ steps.edicion.outputs.semana }}'
--          title: 'Edición ${{ steps.edicion.outputs.semana }} (${{ steps.edicion.outputs.noticias }} noticias)'
--          body: |
--            Edición generada automáticamente para la semana **${{ steps.edicion.outputs.semana }}**.
--
--            Antes de hacer merge:
--
--            - [ ] Los titulares y resúmenes se corresponden con lo que dicen las fuentes
--            - [ ] No se ha colado publicidad disfrazada de noticia
--            - [ ] El titular de la semana es realmente lo más importante que ha pasado
--            - [ ] La vista previa de Vercel se ve bien
--
--            Puedes editar `src/content/ediciones/${{ steps.edicion.outputs.semana }}.md`
--            directamente en esta rama antes de aprobarla.
--          add-paths: src/content/ediciones/
--          delete-branch: true
-+      - name: Publicar la edición
-+        run: |
-+          git config user.name 'github-actions[bot]'
-+          git config user.email 'github-actions[bot]@users.noreply.github.com'
-+          git add src/content/ediciones/
-+          # Una ejecución que no cambia nada no deja un commit vacío detrás.
-+          if git diff --cached --quiet; then
-+            echo 'Sin cambios en las ediciones; no se publica nada.'
-+            exit 0
-+          fi
-+          git commit -m 'Edición ${{ steps.edicion.outputs.semana }} (${{ steps.edicion.outputs.noticias }} noticias)'
-+          git push
+      - name: Publicar la edición
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add src/content/ediciones/
+          # Una ejecución que no cambia nada no deja un commit vacío detrás.
+          if git diff --cached --quiet; then
+            echo 'Sin cambios en las ediciones; no se publica nada.'
+            exit 0
+          fi
+          git commit -m 'Edición ${{ steps.edicion.outputs.semana }} (${{ steps.edicion.outputs.noticias }} noticias)'
+          git push
