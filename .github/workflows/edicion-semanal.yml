@@ -5,7 +5,7 @@ name: Edición semanal
 # Nunca publica directamente: la revisión humana es el paso que falta a propósito.
 on:
   schedule:
-    - cron: '0 6 * * 1'
+    - cron: '23 6 * * 1'
   workflow_dispatch:
     inputs:
       dias:
