@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Edicion from '../components/Edicion.astro';
+import MuroMedios from '../components/MuroMedios.astro';
 import { fechaLarga } from '../lib/secciones';
 
 const ediciones = (await getCollection('ediciones')).sort(
@@ -15,35 +16,41 @@ const { Content } = ultima ? await render(ultima) : { Content: null };
 
 <Base
   titulo="Semana IA"
-  descripcion={ultima?.data.destacado ?? 'Resumen semanal de noticias de inteligencia artificial en español.'}
+  descripcion={ultima?.data.destacado ??
+    'Resumen semanal de noticias de inteligencia artificial en español.'}
   canonica="/"
 >
-  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
-    {
-      ultima ? (
-        <>
+  {
+    ultima ? (
+      <>
+        <div class="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
           <Edicion edicion={ultima} nivel="h1">
             {Content && <Content />}
           </Edicion>
+        </div>
 
-          {anteriores.length > 0 && (
-            <section class="entra pt-12">
-              <h2 class="meta text-xs uppercase tracking-[0.18em] text-[var(--color-apunte)]">
-                Ediciones anteriores
-              </h2>
+        {anteriores.length > 0 && (
+          <section class="entra border-t-2 border-[var(--color-tinta)]">
+            <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8">
+              <h2 class="text-2xl font-medium tracking-tight sm:text-3xl">Las semanas anteriores</h2>
 
-              <ul class="mt-6 grid gap-px bg-[var(--color-linea)] sm:grid-cols-3">
+              <ul class="mt-8">
                 {anteriores.map((e) => (
-                  <li class="bg-[var(--color-papel)]">
+                  <li class="grupo-titular border-t border-[var(--color-linea)]">
                     <a
                       href={`/ediciones/${e.data.semana}`}
-                      class="group flex h-full flex-col gap-3 bg-[var(--color-panel)] p-6 no-underline transition-colors hover:bg-[var(--color-papel)]"
+                      class="grid gap-x-10 gap-y-2 py-7 no-underline md:grid-cols-[10rem_1fr]"
                     >
-                      <span class="meta text-xs text-[var(--color-apunte)]">
+                      <span class="meta text-sm text-[var(--color-apunte)]">
                         {fechaLarga(e.data.fecha)}
                       </span>
-                      <span class="leading-snug transition-colors group-hover:text-[var(--color-senal)]">
-                        {e.data.destacado}
+                      <span>
+                        <span class="enlace-titular text-xl leading-snug font-medium sm:text-2xl">
+                          {e.data.destacado}
+                        </span>
+                        <span class="meta mt-2 block text-xs text-[var(--color-apunte)]">
+                          {e.data.entradas.length} noticias
+                        </span>
                       </span>
                     </a>
                   </li>
@@ -52,21 +59,48 @@ const { Content } = ultima ? await render(ultima) : { Content: null };
 
               <a
                 href="/archivo"
-                class="meta mt-6 inline-block text-sm text-[var(--color-senal)] underline-offset-4 hover:underline"
+                class="meta mt-8 inline-block border-t border-[var(--color-linea)] pt-8 text-sm text-[var(--color-senal)] underline-offset-4 hover:underline"
               >
                 Ver el archivo completo
               </a>
-            </section>
-          )}
-        </>
-      ) : (
-        <div class="max-w-[46ch] py-16">
-          <h1 class="text-3xl font-semibold tracking-tight">Todavía no hay ninguna edición</h1>
-          <p class="mt-4 leading-relaxed text-[var(--color-apunte)]">
-            La primera se publicará en cuanto se ejecute el recopilador semanal.
-          </p>
-        </div>
-      )
-    }
-  </div>
+            </div>
+          </section>
+        )}
+
+        <MuroMedios />
+
+        {/* Un solo destino: el feed. No hay boletin por correo, asi que no se
+            promete uno. */}
+        <section class="entra">
+          <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8">
+            <div class="grid gap-8 border border-[var(--color-tinta)] p-8 sm:p-12 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div class="max-w-[52ch]">
+                <h2 class="text-2xl font-medium tracking-tight sm:text-3xl">
+                  Cada lunes, en tu lector
+                </h2>
+                <p class="mt-4 leading-relaxed text-[var(--color-apunte)]">
+                  El feed publica la edición completa en cuanto sale. Sin registro, sin correo y sin
+                  nada que cancelar después.
+                </p>
+              </div>
+
+              <a
+                href="/rss.xml"
+                class="meta inline-block justify-self-start bg-[var(--color-tinta)] px-6 py-3 text-sm whitespace-nowrap text-[var(--color-papel)] no-underline transition-colors hover:bg-[var(--color-senal)]"
+              >
+                Suscribirse por RSS
+              </a>
+            </div>
+          </div>
+        </section>
+      </>
+    ) : (
+      <div class="mx-auto max-w-6xl px-5 py-24 sm:px-8">
+        <h1 class="text-3xl font-semibold tracking-tight">Todavía no hay ninguna edición</h1>
+        <p class="mt-4 max-w-[46ch] leading-relaxed text-[var(--color-apunte)]">
+          La primera se publicará en cuanto se ejecute el recopilador semanal.
+        </p>
+      </div>
+    )
+  }
 </Base>

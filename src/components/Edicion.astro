@@ -1,113 +1,221 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { agruparPorSeccion, dominio, fechaCorta } from '../lib/secciones';
+import { agruparPorSeccion, fechaCorta, fechaLarga } from '../lib/secciones';
+import { marcaDe } from '../lib/marcas';
+import Marca from './Marca.astro';
 
 interface Props {
   edicion: CollectionEntry<'ediciones'>;
-  /** La portada usa h1 para el titulo de la edicion; el archivo, h2. */
+  /** La portada usa h1 para el titular de la semana; el archivo, h2. */
   nivel?: 'h1' | 'h2';
 }
 
 const { edicion, nivel = 'h1' } = Astro.props;
 const { data } = edicion;
-const secciones = agruparPorSeccion(data.entradas);
-const fuentes = new Set(data.entradas.map((e) => e.fuente)).size;
 const Titulo = nivel;
+
+/*
+  Jerarquia de la edicion. El robot entrega las entradas ya ordenadas por
+  relevancia, asi que el orden del archivo es el orden editorial:
+
+    la primera           -> noticia de apertura, al lado del titular de la semana
+    las cinco siguientes -> portada: la primera a doble ancho, las otras cuatro debajo
+    el resto             -> cuerpo, agrupado por seccion
+
+  Cada noticia aparece una sola vez y siempre con su resumen. Si la edicion trae
+  pocas entradas los cortes se quedan vacios y las secciones desaparecen solas.
+*/
+const [apertura, ...restantes] = data.entradas;
+const portada = restantes.slice(0, 5);
+const cuerpo = agruparPorSeccion(restantes.slice(5));
+
+/* Cortes medidos sobre la columna de portada: por encima de 95 caracteres el
+   cuerpo grande pasa de tres lineas, que es donde deja de leerse como titular. */
+const tamanoTitular =
+  data.destacado.length <= 58
+    ? 'titular-portada--corto'
+    : data.destacado.length > 95
+      ? 'titular-portada--largo'
+      : '';
+
+const medios = new Set(data.entradas.map((e) => e.fuente)).size;
+const numeroSemana = data.semana.split('-W')[1];
+
+/* El dato de cabecera de un periodico: numero, fecha y extension de la edicion. */
+const folio: [string, string][] = [
+  ['Publicada', fechaLarga(data.fecha)],
+  ['Noticias', String(data.entradas.length)],
+  ['Medios citados', String(medios)],
+  ['Fuentes rastreadas', String(data.fuentesConsultadas ?? 19)],
+];
 ---
 
 <article>
-  <header class="border-b border-[var(--color-linea)] pb-10">
-    <p class="meta text-xs uppercase tracking-[0.2em] text-[var(--color-senal)]">
-      Semana {data.semana.split('-W')[1]} de {data.semana.split('-W')[0]}
-    </p>
+  {/* Apertura: el titular de la semana a la izquierda, la noticia principal a la derecha. */}
+  <section class="grid gap-x-12 gap-y-12 lg:grid-cols-12">
+    <div class="lg:col-span-7">
+      <p class="meta text-xs tracking-[0.2em] text-[var(--color-senal)] uppercase">
+        Edición número {numeroSemana}
+      </p>
 
-    <Titulo class="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight sm:text-4xl">
-      {data.titulo}
-    </Titulo>
+      <Titulo class:list={['titular-portada mt-5', tamanoTitular]}>{data.destacado}</Titulo>
 
-    <p class="mt-5 max-w-[46ch] text-xl leading-snug text-[var(--color-apunte)] sm:text-2xl">
-      {data.destacado}
-    </p>
+      <p class="meta mt-5 text-sm text-[var(--color-apunte)]">{data.titulo}</p>
 
-    <p class="meta mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--color-apunte)]">
-      <span>{data.entradas.length} noticias</span>
-      <span aria-hidden="true">/</span>
-      <span>{fuentes} medios</span>
       {
-        data.fuentesConsultadas && (
-          <>
-            <span aria-hidden="true">/</span>
-            <span>{data.fuentesConsultadas} fuentes rastreadas</span>
-          </>
+        Astro.slots.has('default') && (
+          <div class="mt-7 max-w-[58ch] text-lg leading-relaxed [&_p+p]:mt-4">
+            <slot />
+          </div>
         )
       }
-    </p>
+
+      {
+        data.etiquetas.length > 0 && (
+          <ul class="meta mt-8 flex flex-wrap gap-2 text-xs text-[var(--color-apunte)]">
+            {data.etiquetas.map((etiqueta) => (
+              <li class="border border-[var(--color-linea)] px-2.5 py-1">{etiqueta}</li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
 
     {
-      data.etiquetas.length > 0 && (
-        <ul class="meta mt-4 flex flex-wrap gap-2 text-xs text-[var(--color-apunte)]">
-          {data.etiquetas.map((etiqueta) => (
-            <li class="border border-[var(--color-linea)] px-2 py-0.5">{etiqueta}</li>
-          ))}
-        </ul>
+      apertura && (
+        <div class="grupo-titular lg:col-span-5 lg:border-l lg:border-[var(--color-linea)] lg:pl-12">
+          {/* No dice "la mas importante": el orden lo fija el recuento de relevancia,
+              y el titular de la semana lo escribe el redactor leyendo todas. Que la
+              primera de la lista no sea siempre la misma historia es normal. */}
+          <p class="filete-seccion meta text-xs tracking-[0.14em] uppercase">Abre la edición</p>
+
+          <h2 class="titular-seccion mt-5">
+            <a
+              href={apertura.url}
+              rel="noopener noreferrer external"
+              target="_blank"
+              title={apertura.tituloOriginal}
+              class="enlace-titular no-underline"
+            >
+              {apertura.titulo}
+            </a>
+          </h2>
+
+          {apertura.resumen && (
+            <p class="mt-4 leading-relaxed text-[var(--color-apunte)]">{apertura.resumen}</p>
+          )}
+
+          <p class="meta mt-5 flex items-center gap-2.5 text-xs text-[var(--color-apunte)]">
+            <Marca marca={marcaDe(apertura.fuente)} lado={22} />
+            <span class="text-[var(--color-tinta)]">{apertura.fuente}</span>
+            <time datetime={apertura.fecha.toISOString()}>{fechaCorta(apertura.fecha)}</time>
+          </p>
+        </div>
       )
     }
-  </header>
+  </section>
 
+  {/* Linea de folio. En celdas con filete en medio, no separada por puntos: a
+      partir de tres datos seguidos los puntos se leen como ruido. */}
+  <dl
+    class="meta mt-14 grid grid-cols-2 gap-px border-y border-[var(--color-linea)] bg-[var(--color-linea)] text-xs sm:grid-cols-4"
+  >
+    {
+      folio.map(([clave, valor]) => (
+        <div class="bg-[var(--color-papel)] py-3.5">
+          <dt class="text-[var(--color-apunte)]">{clave}</dt>
+          <dd class="mt-1 text-[var(--color-tinta)]">{valor}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  {/* Portada. La primera noticia ocupa dos columnas y va mas grande: cinco
+      entradas llenan exactamente dos filas, sin celdas sueltas al final. */}
   {
-    /* La apertura solo existe cuando alguien (Claude o tu) ha escrito el cuerpo del Markdown. */
-    Astro.slots.has('default') && (
-      <div class="entra max-w-[62ch] border-b border-[var(--color-linea)] py-10 text-lg leading-relaxed [&_p+p]:mt-4">
-        <slot />
-      </div>
-    )
-  }
+    portada.length > 0 && (
+      <section class="entra mt-14">
+        <h2 class="sr-only">Portada</h2>
 
-  {
-    secciones.map((seccion) => (
-      <section class="entra grid gap-x-10 border-b border-[var(--color-linea)] py-12 md:grid-cols-[11rem_1fr]">
-        <h2 class="meta mb-6 self-start text-xs uppercase tracking-[0.18em] text-[var(--color-senal)] md:sticky md:top-8 md:mb-0">
-          {seccion.titulo}
-        </h2>
+        <div class="grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+          {portada.map((entrada, i) => (
+            <div class:list={['grupo-titular', i === 0 && 'md:col-span-2']}>
+              <p class="meta flex items-center gap-2.5 text-xs text-[var(--color-apunte)]">
+                <Marca marca={marcaDe(entrada.fuente)} lado={20} />
+                <span class="text-[var(--color-tinta)]">{entrada.fuente}</span>
+                <time datetime={entrada.fecha.toISOString()}>{fechaCorta(entrada.fecha)}</time>
+              </p>
 
-        <div>
-          {seccion.entradas.map((entrada, i) => (
-            <div
-              class:list={[
-                'group',
-                i > 0 && 'mt-9 border-t border-[var(--color-linea)] pt-9',
-              ]}
-            >
-              <h3 class="text-xl leading-snug font-medium sm:text-2xl">
+              <h3
+                class:list={[
+                  'mt-3 leading-snug font-medium',
+                  i === 0 ? 'text-2xl sm:text-[1.7rem]' : 'text-xl',
+                ]}
+              >
                 <a
                   href={entrada.url}
                   rel="noopener noreferrer external"
                   target="_blank"
                   title={entrada.tituloOriginal}
-                  class="no-underline decoration-[var(--color-senal)] decoration-1 underline-offset-4 transition-colors group-hover:text-[var(--color-senal)] group-hover:underline"
+                  class="enlace-titular no-underline"
                 >
                   {entrada.titulo}
                 </a>
               </h3>
 
               {entrada.resumen && (
-                <p class="mt-3 max-w-[62ch] leading-relaxed text-[var(--color-apunte)]">
+                <p
+                  class:list={[
+                    'mt-3 leading-relaxed text-[var(--color-apunte)]',
+                    i === 0 && 'max-w-[62ch] text-lg',
+                  ]}
+                >
                   {entrada.resumen}
                 </p>
               )}
 
-              <p class="meta mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-[var(--color-apunte)]">
+              {entrada.tambienEn.length > 0 && (
+                <p class="meta mt-3 text-xs text-[var(--color-apunte)]">
+                  También en {entrada.tambienEn.join(', ')}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {/* Cuerpo por secciones. La cabecera de seccion lleva filete grueso encima, que
+      es lo que marca el cambio de bloque cuando la edicion se hace larga. */}
+  {
+    cuerpo.map((seccion) => (
+      <section class="entra mt-16">
+        <h2 class="filete-seccion meta text-sm tracking-[0.14em] uppercase">{seccion.titulo}</h2>
+
+        <div class="mt-8 grid gap-x-10 gap-y-9 md:grid-cols-2">
+          {seccion.entradas.map((entrada) => (
+            <div class="grupo-titular border-t border-[var(--color-linea)] pt-6">
+              <h3 class="text-lg leading-snug font-medium">
+                <a
+                  href={entrada.url}
+                  rel="noopener noreferrer external"
+                  target="_blank"
+                  title={entrada.tituloOriginal}
+                  class="enlace-titular no-underline"
+                >
+                  {entrada.titulo}
+                </a>
+              </h3>
+
+              {entrada.resumen && (
+                <p class="mt-2.5 leading-relaxed text-[var(--color-apunte)]">{entrada.resumen}</p>
+              )}
+
+              <p class="meta mt-3 flex items-center gap-2.5 text-xs text-[var(--color-apunte)]">
+                <Marca marca={marcaDe(entrada.fuente)} lado={18} />
                 <span class="text-[var(--color-tinta)]">{entrada.fuente}</span>
-                <span aria-hidden="true">/</span>
                 <time datetime={entrada.fecha.toISOString()}>{fechaCorta(entrada.fecha)}</time>
-                <span aria-hidden="true">/</span>
-                <span>{dominio(entrada.url)}</span>
-                {entrada.tambienEn.length > 0 && (
-                  <>
-                    <span aria-hidden="true">/</span>
-                    <span>también en {entrada.tambienEn.join(', ')}</span>
-                  </>
-                )}
               </p>
             </div>
           ))}

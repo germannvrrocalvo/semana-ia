@@ -9,11 +9,14 @@
   Semana IA - sistema de diseno.
 
   Un periodico: papel, tinta y una sola tinta de color para senalar. El acento
-  (rojo bermellon) marca la semana, los enlaces y las etiquetas de seccion; nunca
+  (rojo bermellon) marca la semana, los enlaces y las cabeceras de seccion; nunca
   se usa como fondo de bloques grandes.
 
   Radio de esquina: 0 en todo el sitio. Es una decision, no un olvido. Las esquinas
   vivas son lo que separa una publicacion de una plantilla de SaaS.
+
+  Las reglas (filetes) hacen el trabajo que en otros sitios hacen las tarjetas:
+  separan sin encerrar. Por eso casi no hay cajas con fondo propio.
 */
 @theme {
   --font-serif: 'Newsreader Variable', ui-serif, Georgia, 'Times New Roman', serif;
@@ -115,5 +118,92 @@
       opacity: 1;
       transform: none;
     }
+  }
+}
+
+@layer components {
+  /*
+    El titular de portada lo escribe el robot, asi que puede traer seis palabras o
+    veinticinco. El tamano se elige por longitud del texto, no solo por ancho de
+    pantalla: con un solo clamp, los titulares largos se comian la primera pantalla
+    en seis lineas y los cortos se quedaban pequenos.
+  */
+  .titular-portada {
+    line-height: 1.03;
+    letter-spacing: -0.022em;
+    font-weight: 500;
+    text-wrap: balance;
+    font-size: clamp(2.25rem, 4vw, 3.25rem);
+  }
+
+  .titular-portada--corto {
+    font-size: clamp(2.75rem, 5.4vw, 4.5rem);
+    letter-spacing: -0.03em;
+  }
+
+  .titular-portada--largo {
+    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    line-height: 1.1;
+    letter-spacing: -0.016em;
+  }
+
+  .titular-seccion {
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    font-weight: 500;
+  }
+
+  /*
+    Cabecera de seccion de periodico: nombre en versalitas sobre un filete grueso.
+    Sustituye a la etiqueta minuscula en mayusculas que llevaba antes cada bloque,
+    que hacia que todas las secciones se leyeran iguales.
+  */
+  .filete-seccion {
+    border-top: 2px solid var(--color-tinta);
+    padding-top: 0.6rem;
+  }
+
+  /*
+    Enlace de titular. El subrayado crece desde la izquierda al pasar por encima,
+    en lugar de aparecer de golpe: se lee como una linea trazada a mano sobre el
+    papel. Se apoya en background-size, que no provoca reflow.
+  */
+  .enlace-titular {
+    background-image: linear-gradient(var(--color-senal), var(--color-senal));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition:
+      background-size 0.32s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.2s ease;
+  }
+
+  .grupo-titular:hover .enlace-titular,
+  .enlace-titular:focus-visible {
+    background-size: 100% 1px;
+    color: var(--color-senal);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .enlace-titular {
+      transition: none;
+    }
+  }
+
+  /*
+    Las marcas de los medios se pintan en tinta, no en su color corporativo: un
+    muro de logos multicolor romperia la paleta de una sola tinta. Al pasar por
+    encima recuperan su color de marca, que es cuando el color aporta algo.
+  */
+  .marca-medio {
+    color: var(--color-apunte);
+    transition:
+      color 0.25s ease,
+      opacity 0.25s ease;
+  }
+
+  .marca-medio:hover {
+    color: var(--marca-color, var(--color-senal));
   }
 }

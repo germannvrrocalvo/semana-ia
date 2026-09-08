@@ -1,0 +1,41 @@
+---
+import { MARCAS_CON_LOGO } from '../lib/marcas';
+import Marca from './Marca.astro';
+import fuentes from '../../scripts/fuentes.json';
+
+const restantes = fuentes.fuentes.length - MARCAS_CON_LOGO.length;
+---
+
+{/*
+  Muro de medios. Va debajo de la edicion, nunca dentro de la cabecera: aqui su
+  papel es responder a "de donde sale esto", que es la pregunta que se hace quien
+  llega por primera vez.
+*/}
+<section class="entra border-y border-[var(--color-linea)] bg-[var(--color-panel)]">
+  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8">
+    <div class="max-w-[46ch]">
+      <h2 class="text-2xl font-medium tracking-tight sm:text-3xl">De dónde sale cada semana</h2>
+      <p class="mt-4 leading-relaxed text-[var(--color-apunte)]">
+        Blogs oficiales de los laboratorios, prensa especializada, artículos de arXiv y dos medios
+        en español. Todo por RSS público, sin acuerdos ni contenido patrocinado.
+      </p>
+    </div>
+
+    <ul class="mt-10 flex flex-wrap items-center gap-x-12 gap-y-9">
+      {
+        MARCAS_CON_LOGO.map((marca) => (
+          <li>
+            <Marca marca={marca} lado={34} />
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="meta mt-10 text-sm text-[var(--color-apunte)]">
+      {restantes} medios más, entre ellos The Verge, WIRED y MIT Technology Review.{' '}
+      <a href="/acerca-de" class="text-[var(--color-senal)] underline-offset-4 hover:underline">
+        Ver la lista completa y cómo se filtran
+      </a>
+    </p>
+  </div>
+</section>

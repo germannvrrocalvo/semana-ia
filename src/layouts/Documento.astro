@@ -1,0 +1,44 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  titulo: string;
+  descripcion: string;
+  /** Entradilla bajo el titulo. Una frase, en el mismo tono que el resto del sitio. */
+  entradilla: string;
+  /** Fecha de la ultima revision, en formato legible. Solo en documentos legales. */
+  actualizado?: string;
+}
+
+const { titulo, descripcion, entradilla, actualizado } = Astro.props;
+---
+
+{/*
+  Plantilla de los documentos de texto largo (legales y contacto). Columna unica y
+  estrecha: aqui el trabajo del diseno es que se lea, no que sorprenda. La prosa
+  se compone con variantes sobre el slot para no depender de un plugin de
+  tipografia solo por cuatro paginas.
+*/}
+<Base titulo={titulo} descripcion={descripcion}>
+  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+    <header class="max-w-[52ch] border-b-2 border-[var(--color-tinta)] pb-10">
+      <h1 class="text-3xl font-medium tracking-tight sm:text-[2.5rem] sm:leading-[1.1]">
+        {titulo}
+      </h1>
+      <p class="mt-5 text-xl leading-snug text-[var(--color-apunte)]">{entradilla}</p>
+      {
+        actualizado && (
+          <p class="meta mt-6 text-xs text-[var(--color-apunte)]">
+            Última actualización: {actualizado}
+          </p>
+        )
+      }
+    </header>
+
+    <div
+      class="mt-12 max-w-[68ch] text-[1.0625rem] leading-relaxed [&_a]:text-[var(--color-senal)] [&_a]:underline [&_a]:underline-offset-4 [&_h2]:mt-12 [&_h2]:border-t [&_h2]:border-[var(--color-linea)] [&_h2]:pt-6 [&_h2]:text-xl [&_h2]:font-medium [&_h2]:tracking-tight [&_h2:first-child]:mt-0 [&_h2:first-child]:border-0 [&_h2:first-child]:pt-0 [&_li]:mt-2.5 [&_p]:mt-4 [&_strong]:font-medium [&_ul]:mt-4 [&_ul]:list-outside [&_ul]:list-disc [&_ul]:pl-5"
+    >
+      <slot />
+    </div>
+  </div>
+</Base>

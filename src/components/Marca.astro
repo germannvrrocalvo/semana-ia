@@ -1,0 +1,37 @@
+---
+import type { Marca } from '../lib/marcas';
+
+interface Props {
+  marca: Marca;
+  /** Lado de la celda en pixeles. Logotipo y monograma ocupan exactamente lo mismo. */
+  lado?: number;
+}
+
+const { marca, lado = 28 } = Astro.props;
+---
+
+{
+  marca.tipo === 'logo' ? (
+    <svg
+      class="marca-medio"
+      style={`--marca-color: ${marca.color}`}
+      width={lado}
+      height={lado}
+      viewBox="0 0 24 24"
+      role="img"
+      aria-label={marca.nombre}
+      fill="currentColor"
+    >
+      <path d={marca.path} />
+    </svg>
+  ) : (
+    <span
+      class="meta marca-medio inline-flex items-center justify-center border border-[var(--color-linea)] font-medium"
+      style={`width: ${lado}px; height: ${lado}px; font-size: ${Math.round(lado * 0.36)}px; letter-spacing: 0.02em`}
+      role="img"
+      aria-label={marca.nombre}
+    >
+      {marca.letras}
+    </span>
+  )
+}

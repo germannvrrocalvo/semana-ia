@@ -1,0 +1,78 @@
+---
+import Documento from '../layouts/Documento.astro';
+import { SITIO } from '../lib/sitio';
+---
+
+<Documento
+  titulo="Aviso legal"
+  descripcion="Titularidad de Semana IA, condiciones de uso y tratamiento de los contenidos de terceros."
+  entradilla="Quién publica este sitio, qué puedes hacer con él y qué relación tiene con los medios que enlaza."
+  actualizado="7 de septiembre de 2026"
+>
+  <h2>Titularidad</h2>
+  <p>
+    Este sitio web lo publica {SITIO.responsable}, responsable de su contenido y de su
+    mantenimiento. La dirección de contacto es <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a>,
+    y también está disponible el formulario de la <a href="/contacto">página de contacto</a>.
+  </p>
+  <p>
+    El sitio no tiene ánimo de lucro más allá de la publicidad que pueda mostrarse para cubrir sus
+    costes, no vende productos ni servicios y no mantiene relación comercial con ninguno de los
+    medios que enlaza.
+  </p>
+
+  <h2>Qué es lo que se publica aquí</h2>
+  <p>
+    {SITIO.nombre} es un boletín semanal que recopila noticias sobre inteligencia artificial
+    publicadas por otros medios. De cada noticia se muestra un titular traducido al español, un
+    resumen breve, el nombre del medio, la fecha y un enlace al artículo original.
+  </p>
+  <p>
+    Los titulares, los artículos y las marcas citadas pertenecen a sus respectivos titulares. Aquí
+    se citan con finalidad informativa y de reseña, y siempre acompañados del enlace a la fuente,
+    para que el lector acceda al original. No se reproducen artículos completos ni se sustituye su
+    lectura.
+  </p>
+  <p>
+    Si eres responsable de un medio citado y quieres que dejemos de enlazar o resumir tus
+    contenidos, escríbenos y lo retiramos. No hace falta requerimiento formal.
+  </p>
+
+  <h2>Los textos propios</h2>
+  <p>
+    Los resúmenes en español, los textos de presentación de cada edición y el diseño del sitio son
+    obra de {SITIO.responsable}. Puedes citarlos y enlazarlos libremente indicando la procedencia.
+    El código que genera el boletín es público y está en
+    <a href={SITIO.repositorio} rel="noopener noreferrer">GitHub</a>.
+  </p>
+
+  <h2>Límites de responsabilidad</h2>
+  <ul>
+    <li>
+      Los resúmenes se generan con ayuda de un modelo de lenguaje a partir del titular y del
+      extracto que publica cada medio. Pueden contener errores. El texto que cuenta siempre es el
+      del artículo original.
+    </li>
+    <li>
+      No controlamos el contenido de los sitios enlazados ni respondemos de lo que publiquen, de su
+      disponibilidad ni de sus condiciones de uso.
+    </li>
+    <li>
+      Nada de lo publicado aquí es asesoramiento profesional, financiero ni de inversión.
+    </li>
+    <li>
+      El servicio se ofrece tal cual. Se procura que esté siempre disponible y actualizado, pero no
+      se garantiza que no haya interrupciones ni erratas.
+    </li>
+  </ul>
+  <p>
+    Si encuentras un error, <a href="/contacto">avísanos</a>. Corregir es más rápido que discutir.
+  </p>
+
+  <h2>Legislación aplicable</h2>
+  <p>
+    Estas condiciones se rigen por la legislación española. Para cualquier controversia serán
+    competentes los juzgados y tribunales que correspondan conforme a la normativa vigente en
+    materia de consumidores y usuarios.
+  </p>
+</Documento>

@@ -36,24 +36,25 @@ const { etiqueta, ediciones } = Astro.props;
   descripcion={`Ediciones de Semana IA marcadas con el tema ${etiqueta}.`}
 >
   <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
-    <header class="border-b border-[var(--color-linea)] pb-10">
+    <header class="border-b-2 border-[var(--color-tinta)] pb-10">
       <p class="meta text-xs uppercase tracking-[0.2em] text-[var(--color-senal)]">Tema</p>
-      <h1 class="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">{etiqueta}</h1>
-      <p class="meta mt-4 text-sm text-[var(--color-apunte)]">
+      <h1 class="titular-portada mt-5">{etiqueta}</h1>
+      <p class="meta mt-5 text-sm text-[var(--color-apunte)]">
         {ediciones.length}
-        {ediciones.length === 1 ? 'edición' : 'ediciones'}
+        {ediciones.length === 1 ? 'edición con este eje' : 'ediciones con este eje'}
       </p>
     </header>
 
-    <ul class="border-b border-[var(--color-linea)] py-4">
+    <ul>
       {
-        ediciones.map((e, i) => (
-          <li
-            class:list={['entra py-8', i > 0 && 'border-t border-[var(--color-linea)]']}
-          >
-            <a href={`/ediciones/${e.data.semana}`} class="group block no-underline">
-              <span class="meta text-xs text-[var(--color-apunte)]">{fechaLarga(e.data.fecha)}</span>
-              <span class="mt-2 block max-w-[52ch] text-xl leading-snug transition-colors group-hover:text-[var(--color-senal)]">
+        ediciones.map((e) => (
+          <li class="grupo-titular entra border-b border-[var(--color-linea)]">
+            <a
+              href={`/ediciones/${e.data.semana}`}
+              class="grid gap-x-10 gap-y-2 py-7 no-underline md:grid-cols-[10rem_1fr]"
+            >
+              <span class="meta text-sm text-[var(--color-apunte)]">{fechaLarga(e.data.fecha)}</span>
+              <span class="enlace-titular max-w-[52ch] text-xl leading-snug font-medium sm:text-2xl">
                 {e.data.destacado}
               </span>
             </a>
