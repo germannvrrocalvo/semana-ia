@@ -24,33 +24,37 @@ const totalNoticias = ediciones.reduce((n, e) => n + e.data.entradas.length, 0);
   descripcion="Todas las ediciones semanales de Semana IA, de la más reciente a la primera."
 >
   <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
-    <header class="border-b border-[var(--color-linea)] pb-10">
-      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Archivo</h1>
-      <p class="meta mt-4 text-sm text-[var(--color-apunte)]">
+    <header class="border-b-2 border-[var(--color-tinta)] pb-10">
+      <h1 class="titular-portada">El archivo completo</h1>
+      <p class="meta mt-6 text-sm text-[var(--color-apunte)]">
         {ediciones.length}
-        {ediciones.length === 1 ? 'edición' : 'ediciones'} · {totalNoticias} noticias
+        {ediciones.length === 1 ? 'edición publicada' : 'ediciones publicadas'}, con {totalNoticias}
+        noticias recopiladas en total.
       </p>
     </header>
 
     {
       porAno.map(([ano, lista]) => (
-        <section class="entra grid gap-x-10 border-b border-[var(--color-linea)] py-12 md:grid-cols-[11rem_1fr]">
-          <h2 class="meta mb-6 self-start text-xs tracking-[0.18em] text-[var(--color-senal)] md:sticky md:top-8 md:mb-0">
-            {ano}
-          </h2>
+        <section class="entra mt-14">
+          <h2 class="filete-seccion meta text-sm tracking-[0.14em] uppercase">{ano}</h2>
 
-          <ul>
-            {lista.map((e, i) => (
-              <li class:list={[i > 0 && 'mt-8 border-t border-[var(--color-linea)] pt-8']}>
-                <a href={`/ediciones/${e.data.semana}`} class="group block no-underline">
-                  <span class="meta text-xs text-[var(--color-apunte)]">
+          <ul class="mt-6">
+            {lista.map((e) => (
+              <li class="grupo-titular border-t border-[var(--color-linea)]">
+                <a
+                  href={`/ediciones/${e.data.semana}`}
+                  class="grid gap-x-10 gap-y-2 py-7 no-underline md:grid-cols-[10rem_1fr]"
+                >
+                  <span class="meta text-sm text-[var(--color-apunte)]">
                     {fechaLarga(e.data.fecha)}
                   </span>
-                  <span class="mt-2 block text-xl leading-snug transition-colors group-hover:text-[var(--color-senal)]">
-                    {e.data.destacado}
-                  </span>
-                  <span class="meta mt-2 block text-xs text-[var(--color-apunte)]">
-                    {e.data.entradas.length} noticias
+                  <span>
+                    <span class="enlace-titular text-xl leading-snug font-medium sm:text-2xl">
+                      {e.data.destacado}
+                    </span>
+                    <span class="meta mt-2 block text-xs text-[var(--color-apunte)]">
+                      {e.data.entradas.length} noticias
+                    </span>
                   </span>
                 </a>
               </li>
@@ -58,6 +62,14 @@ const totalNoticias = ediciones.reduce((n, e) => n + e.data.entradas.length, 0);
           </ul>
         </section>
       ))
+    }
+
+    {
+      ediciones.length === 0 && (
+        <p class="mt-12 max-w-[52ch] leading-relaxed text-[var(--color-apunte)]">
+          El archivo se llenará en cuanto se publique la primera edición.
+        </p>
+      )
     }
   </div>
 </Base>

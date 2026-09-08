@@ -4,39 +4,44 @@ const enlaces = [
   { href: '/archivo', texto: 'Archivo' },
   { href: '/temas', texto: 'Temas' },
   { href: '/acerca-de', texto: 'Acerca de' },
+  { href: '/contacto', texto: 'Contacto' },
 ];
 const activo = (href: string) => ruta === href || ruta.startsWith(`${href}/`);
 ---
+
+{/* El filete bermellon sobre la cabecera es el unico uso del acento como bloque:
+    hace de linea de cabecera de periodico y fija el color de la publicacion. */}
+<div class="h-1 bg-[var(--color-senal)]"></div>
 
 <header class="border-b border-[var(--color-linea)]">
   <nav
     class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-5 sm:px-8"
     aria-label="Principal"
   >
-    <a href="/" class="group flex items-baseline gap-2.5 no-underline">
-      <span class="text-xl font-semibold tracking-tight">Semana IA</span>
-      <span
-        class="meta hidden text-[0.7rem] uppercase tracking-[0.18em] text-[var(--color-apunte)] sm:inline"
-      >
+    <a href="/" class="flex items-baseline gap-3 no-underline">
+      <span class="text-[1.4rem] font-semibold tracking-[-0.03em]">Semana IA</span>
+      <span class="meta hidden text-[0.7rem] tracking-[0.16em] text-[var(--color-apunte)] uppercase md:inline">
         Boletín semanal
       </span>
     </a>
 
-    <div class="flex items-center gap-5 sm:gap-7">
-      {
-        enlaces.map((e) => (
-          <a
-            href={e.href}
-            aria-current={activo(e.href) ? 'page' : undefined}
-            class:list={[
-              'meta text-sm no-underline transition-colors hover:text-[var(--color-senal)]',
-              activo(e.href) ? 'text-[var(--color-senal)]' : 'text-[var(--color-apunte)]',
-            ]}
-          >
-            {e.texto}
-          </a>
-        ))
-      }
+    <div class="flex items-center gap-6">
+      <div class="hidden items-center gap-6 sm:flex">
+        {
+          enlaces.map((e) => (
+            <a
+              href={e.href}
+              aria-current={activo(e.href) ? 'page' : undefined}
+              class:list={[
+                'meta text-sm no-underline transition-colors hover:text-[var(--color-senal)]',
+                activo(e.href) ? 'text-[var(--color-senal)]' : 'text-[var(--color-apunte)]',
+              ]}
+            >
+              {e.texto}
+            </a>
+          ))
+        }
+      </div>
 
       <button
         type="button"
@@ -49,6 +54,27 @@ const activo = (href: string) => ruta === href || ruta.startsWith(`${href}/`);
       </button>
     </div>
   </nav>
+
+  {/* En movil los enlaces no caben junto al nombre de la cabecera, asi que bajan
+      a su propia franja. En sobremesa la barra sigue siendo una sola linea. */}
+  <div class="border-t border-[var(--color-linea)] sm:hidden">
+    <div class="mx-auto flex max-w-6xl gap-5 overflow-x-auto px-5 py-2.5">
+      {
+        enlaces.map((e) => (
+          <a
+            href={e.href}
+            aria-current={activo(e.href) ? 'page' : undefined}
+            class:list={[
+              'meta shrink-0 text-sm no-underline',
+              activo(e.href) ? 'text-[var(--color-senal)]' : 'text-[var(--color-apunte)]',
+            ]}
+          >
+            {e.texto}
+          </a>
+        ))
+      }
+    </div>
+  </div>
 </header>
 
 <script>

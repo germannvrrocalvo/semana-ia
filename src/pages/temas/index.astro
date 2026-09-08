@@ -23,27 +23,27 @@ const temas = [...recuento].sort((a, b) => b[1].total - a[1].total || a[0].local
   descripcion="Los ejes que se repiten semana tras semana en las noticias de inteligencia artificial."
 >
   <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
-    <header class="border-b border-[var(--color-linea)] pb-10">
-      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Temas</h1>
-      <p class="mt-4 max-w-[52ch] leading-relaxed text-[var(--color-apunte)]">
-        Cada edición se etiqueta con los ejes que la han dominado. Aquí puedes seguir uno a lo
-        largo del tiempo.
+    <header class="border-b-2 border-[var(--color-tinta)] pb-10">
+      <h1 class="titular-portada">Seguir un tema en el tiempo</h1>
+      <p class="mt-6 max-w-[62ch] leading-relaxed text-[var(--color-apunte)]">
+        Cada edición se etiqueta con los ejes que la han dominado. Son siempre los mismos seis, para
+        que comparar una semana con otra signifique algo.
       </p>
     </header>
 
     {
       temas.length > 0 ? (
-        <ul class="grid gap-px border-b border-[var(--color-linea)] bg-[var(--color-linea)] sm:grid-cols-2 lg:grid-cols-3">
+        <ul class="mt-4">
           {temas.map(([slug, { etiqueta, total }]) => (
-            <li>
+            <li class="grupo-titular border-b border-[var(--color-linea)]">
               <a
                 href={`/temas/${slug}`}
-                class="group flex items-baseline justify-between gap-4 bg-[var(--color-panel)] px-6 py-5 no-underline transition-colors hover:bg-[var(--color-papel)]"
+                class="flex items-baseline justify-between gap-6 py-7 no-underline"
               >
-                <span class="text-lg transition-colors group-hover:text-[var(--color-senal)]">
+                <span class="enlace-titular text-2xl leading-snug font-medium sm:text-3xl">
                   {etiqueta}
                 </span>
-                <span class="meta text-xs text-[var(--color-apunte)]">
+                <span class="meta shrink-0 text-xs text-[var(--color-apunte)]">
                   {total} {total === 1 ? 'edición' : 'ediciones'}
                 </span>
               </a>
@@ -51,7 +51,7 @@ const temas = [...recuento].sort((a, b) => b[1].total - a[1].total || a[0].local
           ))}
         </ul>
       ) : (
-        <p class="py-12 leading-relaxed text-[var(--color-apunte)]">
+        <p class="mt-12 max-w-[52ch] leading-relaxed text-[var(--color-apunte)]">
           Todavía no hay temas: aparecerán en cuanto se publique la primera edición.
         </p>
       )

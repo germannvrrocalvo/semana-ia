@@ -1,11 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
+import Marca from '../components/Marca.astro';
 import fuentes from '../../scripts/fuentes.json';
-
-const porCategoria = fuentes.fuentes.reduce<Record<string, string[]>>((acc, f) => {
-  (acc[f.categoria] ??= []).push(f.nombre);
-  return acc;
-}, {});
+import { MARCAS } from '../lib/marcas';
+import { SITIO } from '../lib/sitio';
 
 const ETIQUETAS: Record<string, string> = {
   oficial: 'Blogs oficiales de laboratorios y empresas',
@@ -14,83 +12,138 @@ const ETIQUETAS: Record<string, string> = {
   comunidad: 'Comunidad',
   espanol: 'Medios en español',
 };
+
+/* Las marcas van en el mismo orden que las fuentes, asi que se emparejan por indice. */
+const catalogo = fuentes.fuentes.map((f, i) => ({ ...f, marca: MARCAS[i] }));
+
+const porCategoria = Object.entries(
+  catalogo.reduce<Record<string, typeof catalogo>>((acc, f) => {
+    (acc[f.categoria] ??= []).push(f);
+    return acc;
+  }, {}),
+);
 ---
 
 <Base
   titulo="Acerca de"
-  descripcion="Cómo se recopila, se ordena y se publica cada edición de Semana IA."
+  descripcion="Cómo se recopila, se ordena y se publica cada edición de Semana IA, y qué papel tiene la inteligencia artificial en el proceso."
 >
   <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
-    <header class="border-b border-[var(--color-linea)] pb-10">
-      <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Cómo se hace</h1>
-      <p class="mt-5 max-w-[46ch] text-xl leading-snug text-[var(--color-apunte)] sm:text-2xl">
-        Un proceso automático abierto, revisado a mano antes de publicarse.
+    <header class="border-b-2 border-[var(--color-tinta)] pb-12">
+      <h1 class="titular-portada max-w-[16ch]">Un periódico que se escribe cada lunes</h1>
+      <p class="mt-6 max-w-[62ch] text-lg leading-relaxed text-[var(--color-apunte)]">
+        {SITIO.nombre} recorre {fuentes.fuentes.length} fuentes públicas, descarta lo que no es
+        noticia y publica lo que queda con el enlace a cada medio. Todo el proceso está a la vista,
+        incluido el código.
       </p>
     </header>
 
-    <section class="entra grid gap-x-10 border-b border-[var(--color-linea)] py-12 md:grid-cols-[11rem_1fr]">
-      <h2 class="meta mb-6 self-start text-xs uppercase tracking-[0.18em] text-[var(--color-senal)] md:sticky md:top-8 md:mb-0">
+    <section class="entra mt-14 grid gap-x-12 gap-y-8 lg:grid-cols-12">
+      <h2 class="filete-seccion meta text-sm tracking-[0.14em] uppercase lg:col-span-3">
         El proceso
       </h2>
 
-      <div class="max-w-[62ch] text-lg leading-relaxed [&>p+p]:mt-5">
+      <div class="max-w-[62ch] text-lg leading-relaxed lg:col-span-9 [&>p+p]:mt-5">
         <p>
           Cada lunes por la mañana, un proceso automático recorre las fuentes listadas más abajo y
           recoge todo lo publicado durante los siete días anteriores.
         </p>
         <p>
-          Después descarta lo que no trata de inteligencia artificial, agrupa las noticias que
-          cuentan la misma historia y las ordena por relevancia. Que varios medios independientes
-          cubran algo es la señal más fiable de que importa, así que eso es lo que más puntúa.
+          Después descarta lo que no trata de inteligencia artificial, aparta los publirreportajes y
+          las listas de trucos, y agrupa las noticias que cuentan la misma historia. Que varios
+          medios independientes cubran algo es la señal más fiable de que importa, así que eso es lo
+          que más puntúa a la hora de ordenarlas.
         </p>
         <p>
-          Con las mejores se redacta un borrador de la edición y se abre una propuesta de cambio en
-          el repositorio. Nada llega a esta web sin que una persona la haya revisado y aprobado
-          antes.
+          Con las mejores se compone la edición, se comprueba que el sitio sigue construyéndose sin
+          errores y se publica. Si una noticia llega con un dato mal formado o un enlace que no es
+          una dirección web normal, la publicación falla antes de llegar aquí.
         </p>
       </div>
     </section>
 
-    <section class="entra grid gap-x-10 border-b border-[var(--color-linea)] py-12 md:grid-cols-[11rem_1fr]">
-      <h2 class="meta mb-6 self-start text-xs uppercase tracking-[0.18em] text-[var(--color-senal)] md:sticky md:top-8 md:mb-0">
-        Los resúmenes
+    <section class="entra mt-14 grid gap-x-12 gap-y-8 lg:grid-cols-12">
+      <h2 class="filete-seccion meta text-sm tracking-[0.14em] uppercase lg:col-span-3">
+        Qué escribe la máquina
       </h2>
 
-      <div class="max-w-[62ch] text-lg leading-relaxed [&>p+p]:mt-5">
+      <div class="max-w-[62ch] text-lg leading-relaxed lg:col-span-9 [&>p+p]:mt-5">
         <p>
-          Los resúmenes en español los escribe un modelo de lenguaje a partir del titular y del
-          extracto que publica cada medio. No sustituyen al artículo original: son una forma de
-          decidir qué merece tu tiempo.
+          Conviene decirlo claro: los titulares traducidos al español y los resúmenes de cada
+          noticia los redacta un modelo de lenguaje a partir del titular y del extracto que publica
+          cada medio. La selección, el orden y las secciones los decide el proceso descrito arriba.
         </p>
         <p>
-          Cada entrada enlaza siempre a su fuente. Si algo te interesa, léelo allí. Y si un resumen
-          no se corresponde con lo que dice el artículo, es un error nuestro, no del medio.
+          Lo que no hace la máquina: inventar noticias, escribir artículos completos ni sustituir a
+          la fuente. Cada entrada enlaza siempre al original, y ese es el texto que cuenta. Si un
+          resumen no se corresponde con lo que dice el artículo, es un error nuestro y se corrige en
+          cuanto se avisa.
+        </p>
+        <p>
+          Cuando una edición se genera sin el modelo disponible, se publica igualmente con el
+          extracto original de cada medio, y así queda indicado en la propia edición.
         </p>
       </div>
     </section>
 
-    <section class="entra grid gap-x-10 py-12 md:grid-cols-[11rem_1fr]">
-      <h2 class="meta mb-6 self-start text-xs uppercase tracking-[0.18em] text-[var(--color-senal)] md:sticky md:top-8 md:mb-0">
-        Las fuentes
+    <section class="entra mt-14 grid gap-x-12 gap-y-8 lg:grid-cols-12">
+      <h2 class="filete-seccion meta text-sm tracking-[0.14em] uppercase lg:col-span-3">
+        Quién lo hace
       </h2>
 
-      <div>
-        <p class="max-w-[62ch] text-lg leading-relaxed">
-          {fuentes.fuentes.length} fuentes públicas, todas por RSS o API abierta.
+      <div class="max-w-[62ch] text-lg leading-relaxed lg:col-span-9 [&>p+p]:mt-5">
+        <p>
+          Lo publica {SITIO.responsable}. El código que recopila, filtra y compone cada edición es
+          público y está en <a
+            href={SITIO.repositorio}
+            rel="noopener noreferrer"
+            class="text-[var(--color-senal)] underline underline-offset-4">GitHub</a
+          >, con el historial completo de cambios y de correcciones.
         </p>
+        <p>
+          Para avisar de un error, pedir que se retire un contenido o proponer una fuente nueva,
+          está la <a
+            href="/contacto"
+            class="text-[var(--color-senal)] underline underline-offset-4">página de contacto</a
+          >.
+        </p>
+      </div>
+    </section>
 
-        <dl class="mt-8">
-          {
-            Object.entries(porCategoria).map(([categoria, nombres], i) => (
-              <div class:list={[i > 0 && 'mt-6 border-t border-[var(--color-linea)] pt-6']}>
-                <dt class="meta text-xs uppercase tracking-[0.14em] text-[var(--color-apunte)]">
-                  {ETIQUETAS[categoria] ?? categoria}
-                </dt>
-                <dd class="mt-2 leading-relaxed">{nombres.join(' · ')}</dd>
-              </div>
-            ))
-          }
-        </dl>
+    <section class="entra mt-16 border-t-2 border-[var(--color-tinta)] pt-10">
+      <h2 class="text-2xl font-medium tracking-tight sm:text-3xl">Las fuentes, una por una</h2>
+      <p class="mt-4 max-w-[62ch] leading-relaxed text-[var(--color-apunte)]">
+        Todas se leen por RSS o por API abierta. Ninguna paga por estar aquí ni puede pedir que se
+        la retire del recuento de relevancia. Añadir o quitar una es un cambio de una línea en un
+        archivo del repositorio.
+      </p>
+
+      <div class="mt-10 grid gap-x-12 gap-y-12 md:grid-cols-2">
+        {
+          porCategoria.map(([categoria, lista]) => (
+            <div>
+              <h3 class="meta border-b border-[var(--color-linea)] pb-3 text-xs tracking-[0.14em] text-[var(--color-apunte)] uppercase">
+                {ETIQUETAS[categoria] ?? categoria}
+              </h3>
+
+              <ul class="mt-5 flex flex-col gap-4">
+                {lista.map((f) => (
+                  <li class="flex items-center gap-3">
+                    <Marca marca={f.marca} lado={22} />
+                    <a
+                      href={f.url}
+                      rel="noopener noreferrer external"
+                      target="_blank"
+                      class="no-underline transition-colors hover:text-[var(--color-senal)]"
+                    >
+                      {f.nombre}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
       </div>
     </section>
   </div>

@@ -1,0 +1,49 @@
+---
+import Documento from '../layouts/Documento.astro';
+import { SITIO } from '../lib/sitio';
+---
+
+<Documento
+  titulo="Contacto"
+  descripcion="Cómo escribir a Semana IA para corregir un error, pedir la retirada de un contenido o proponer una fuente."
+  entradilla="Una dirección, una persona detrás y respuesta a todo lo que llega."
+>
+  <h2>Escribe aquí</h2>
+  <p>
+    <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a>
+  </p>
+  <p>
+    Responde {SITIO.responsable}, que es quien publica el boletín. No hay formulario porque no hace
+    falta guardar tus datos en ningún sitio para leer un correo.
+  </p>
+
+  <h2>Correcciones</h2>
+  <p>
+    Si un resumen no se corresponde con lo que dice el artículo original, o un titular traducido
+    cambia el sentido del que publicó el medio, es un error nuestro. Escríbenos con el enlace de la
+    edición y lo corregimos en cuanto lo leamos. Las correcciones se hacen sobre la propia edición,
+    y el historial de cambios queda público en
+    <a href={SITIO.repositorio} rel="noopener noreferrer">el repositorio</a>.
+  </p>
+
+  <h2>Si eres un medio citado</h2>
+  <p>
+    Cada noticia enlaza siempre al artículo original y solo se reproduce un resumen breve. Aun así,
+    si prefieres que no citemos ni enlacemos tus contenidos, dilo y dejamos de hacerlo. No hace
+    falta requerimiento formal ni explicación.
+  </p>
+
+  <h2>Proponer una fuente</h2>
+  <p>
+    El catálogo de medios que se rastrean cada semana está
+    <a href="/acerca-de">publicado y explicado</a>. Si falta uno que debería estar, mándalo con su
+    dirección de feed RSS. Interesan sobre todo medios en español, que están poco representados.
+  </p>
+
+  <h2>Publicidad y colaboraciones</h2>
+  <p>
+    El sitio no publica contenido patrocinado ni acepta pagos por incluir una noticia. Lo que se
+    resume cada semana lo decide el mismo proceso automático para todos los medios, y ese proceso es
+    público. Para cualquier otra cuestión, la dirección de arriba sirve igual.
+  </p>
+</Documento>

@@ -1,0 +1,94 @@
+---
+import Documento from '../layouts/Documento.astro';
+import { SITIO } from '../lib/sitio';
+
+/*
+  La pagina describe dos estados distintos y lo dice abiertamente: el de ahora, sin
+  publicidad, y el que habra cuando se active. Escribir hoy la version futura como
+  si ya pasara seria informar mal.
+*/
+const conPublicidad = Boolean(import.meta.env.PUBLIC_ADSENSE_CLIENT?.trim());
+---
+
+<Documento
+  titulo="Política de cookies"
+  descripcion="Qué se guarda en tu navegador al visitar Semana IA y cómo controlarlo."
+  entradilla="Lo que este sitio guarda en tu navegador cabe en una línea. El resto de esta página explica por qué."
+  actualizado="7 de septiembre de 2026"
+>
+  <h2>Qué es lo que se guarda</h2>
+  <p>
+    Leer {SITIO.nombre} no requiere aceptar nada. El sitio es estático: no hay sesión, ni carrito,
+    ni perfil, ni nada que necesite recordarte de una visita a otra.
+  </p>
+  <ul>
+    <li>
+      <strong>Preferencia de tema.</strong> Si pulsas el botón de modo claro u oscuro, la elección
+      se guarda en el almacenamiento local de tu navegador con el nombre <code>tema</code>. Es
+      técnicamente necesaria para que la web se vea como la has pedido, no identifica a nadie y no
+      se envía a ningún servidor. Se borra vaciando los datos del sitio en tu navegador.
+    </li>
+  </ul>
+
+  {
+    conPublicidad ? (
+      <>
+        <h2>Cookies de publicidad</h2>
+        <p>
+          Este sitio muestra anuncios de Google AdSense para cubrir sus costes. Google y sus
+          proveedores pueden utilizar cookies y tecnologías similares para mostrar anuncios, medir
+          su rendimiento y limitar cuántas veces ves el mismo. Algunas de estas cookies permiten
+          personalizar los anuncios según tu navegación previa.
+        </p>
+        <p>
+          Antes de que se active ninguna cookie publicitaria se te pide consentimiento a través del
+          aviso que aparece en tu primera visita. Mientras no lo concedas, los anuncios que puedas
+          ver no serán personalizados. Puedes cambiar de opinión en cualquier momento desde ese
+          mismo aviso.
+        </p>
+      </>
+    ) : (
+      <>
+        <h2>Publicidad</h2>
+        <p>
+          Ahora mismo el sitio no muestra anuncios y no carga ningún script de terceros. No hay
+          cookies publicitarias, ni de medición, ni de redes sociales.
+        </p>
+        <p>
+          Cuando se active la publicidad, esta página se actualizará antes de que ocurra y aparecerá
+          un aviso para que decidas sobre las cookies de personalización. La publicidad se serviría
+          a través de Google AdSense.
+        </p>
+      </>
+    )
+  }
+
+  <h2>Analítica</h2>
+  <p>
+    No se usa Google Analytics ni ninguna otra herramienta de analítica. No hay recuento de
+    visitantes ni mapas de calor.
+  </p>
+
+  <h2>Cómo controlarlo desde fuera de este sitio</h2>
+  <ul>
+    <li>
+      Cualquier navegador permite bloquear o borrar cookies y almacenamiento local desde sus
+      ajustes de privacidad.
+    </li>
+    <li>
+      La personalización de los anuncios de Google se gestiona en
+      <a href="https://myadcenter.google.com" rel="noopener noreferrer">Mi centro de anuncios</a>.
+    </li>
+    <li>
+      Para la publicidad de otras redes existe
+      <a href="https://www.youronlinechoices.com/es/" rel="noopener noreferrer">Your Online Choices</a>.
+    </li>
+  </ul>
+
+  <h2>Dudas</h2>
+  <p>
+    Si algo de esto no queda claro, escribe a
+    <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a> y se explica. También puedes leer la
+    <a href="/privacidad">política de privacidad</a>, que cuenta qué se hace con los datos.
+  </p>
+</Documento>

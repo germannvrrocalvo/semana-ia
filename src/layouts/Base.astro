@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Cabecera from '../components/Cabecera.astro';
 import Pie from '../components/Pie.astro';
+import { SITIO } from '../lib/sitio';
 
 interface Props {
   titulo: string;
@@ -12,7 +13,38 @@ interface Props {
 
 const { titulo, descripcion, canonica } = Astro.props;
 const url = new URL(canonica ?? Astro.url.pathname, Astro.site);
-const tituloCompleto = titulo === 'Semana IA' ? titulo : `${titulo} · Semana IA`;
+const tituloCompleto = titulo === SITIO.nombre ? titulo : `${titulo} · ${SITIO.nombre}`;
+
+/*
+  El identificador de AdSense llega por variable de entorno. Mientras este vacio,
+  la pagina no carga ni un solo script de terceros: es lo que permite pedir la
+  revision con el sitio limpio y encender la publicidad despues sin tocar codigo.
+*/
+const adsense = import.meta.env.PUBLIC_ADSENSE_CLIENT?.trim();
+
+const datosEstructurados = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${SITIO.url}/#sitio`,
+      url: SITIO.url,
+      name: SITIO.nombre,
+      description: SITIO.descripcion,
+      inLanguage: 'es-ES',
+      publisher: { '@id': `${SITIO.url}/#editor` },
+    },
+    {
+      '@type': 'Organization',
+      '@id': `${SITIO.url}/#editor`,
+      name: SITIO.nombre,
+      url: SITIO.url,
+      email: SITIO.correo,
+      founder: SITIO.responsable,
+      foundingDate: String(SITIO.desde),
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -25,7 +57,7 @@ const tituloCompleto = titulo === 'Semana IA' ? titulo : `${titulo} · Semana IA
     <link rel="canonical" href={url} />
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Semana IA" />
+    <meta property="og:site_name" content={SITIO.nombre} />
     <meta property="og:title" content={tituloCompleto} />
     <meta property="og:description" content={descripcion} />
     <meta property="og:url" content={url} />
@@ -33,8 +65,14 @@ const tituloCompleto = titulo === 'Semana IA' ? titulo : `${titulo} · Semana IA
     <meta name="twitter:card" content="summary" />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="alternate" type="application/rss+xml" title="Semana IA" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITIO.nombre} href="/rss.xml" />
     <meta name="generator" content={Astro.generator} />
+
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(datosEstructurados)}
+    />
 
     <script is:inline>
       // Se ejecuta antes de pintar para que no haya un fogonazo blanco al cargar
@@ -51,12 +89,44 @@ const tituloCompleto = titulo === 'Semana IA' ? titulo : `${titulo} · Semana IA
         }
       })();
     </script>
+
+    {
+      adsense && (
+        <>
+          {/*
+            Modo de consentimiento v2. Se declara denegado antes de cargar nada de
+            Google: hasta que el aviso de cookies lo actualice, no puede haber
+            publicidad personalizada. Sin esta linea la plataforma de consentimiento
+            de AdSense no tiene sobre que actuar.
+          */}
+          <script is:inline>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('consent', 'default', {
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              analytics_storage: 'denied',
+              wait_for_update: 500,
+            });
+          </script>
+
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense}`}
+            crossorigin="anonymous"
+          />
+        </>
+      )
+    }
   </head>
 
-  <body class="min-h-[100dvh] flex flex-col">
+  <body class="flex min-h-[100dvh] flex-col">
     <a
       href="#contenido"
-      class="meta sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:bg-[var(--color-tinta)] focus:text-[var(--color-papel)] focus:px-4 focus:py-2 focus:text-sm"
+      class="meta sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:bg-[var(--color-tinta)] focus:px-4 focus:py-2 focus:text-sm focus:text-[var(--color-papel)]"
     >
       Saltar al contenido
     </a>

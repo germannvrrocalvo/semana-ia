@@ -1,24 +1,79 @@
 ---
+import { SITIO } from '../lib/sitio';
+
 const ano = new Date().getFullYear();
+const rango = ano > SITIO.desde ? `${SITIO.desde}-${ano}` : String(SITIO.desde);
+
+const columnas = [
+  {
+    titulo: 'La publicación',
+    enlaces: [
+      { href: '/archivo', texto: 'Archivo de ediciones' },
+      { href: '/temas', texto: 'Temas' },
+      { href: '/rss.xml', texto: 'Feed RSS' },
+    ],
+  },
+  {
+    titulo: 'Cómo se hace',
+    enlaces: [
+      { href: '/acerca-de', texto: 'Método y fuentes' },
+      { href: SITIO.repositorio, texto: 'Código en GitHub', externo: true },
+      { href: '/contacto', texto: 'Contacto y correcciones' },
+    ],
+  },
+  {
+    titulo: 'Legal',
+    enlaces: [
+      { href: '/aviso-legal', texto: 'Aviso legal' },
+      { href: '/privacidad', texto: 'Política de privacidad' },
+      { href: '/cookies', texto: 'Política de cookies' },
+    ],
+  },
+];
 ---
 
-<footer class="mt-24 border-t border-[var(--color-linea)]">
-  <div
-    class="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-8"
-  >
-    <div class="max-w-md">
-      <p class="text-lg font-semibold tracking-tight">Semana IA</p>
-      <p class="meta mt-2 text-sm leading-relaxed text-[var(--color-apunte)]">
-        Cada lunes, lo que ha pasado en inteligencia artificial durante la semana anterior.
-        Recopilado automáticamente de fuentes públicas y revisado antes de publicarse.
-      </p>
+<footer class="mt-20 border-t-2 border-[var(--color-tinta)]">
+  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8">
+    <div class="grid gap-12 md:grid-cols-[1.4fr_repeat(3,1fr)]">
+      <div class="max-w-[38ch]">
+        <p class="text-xl font-semibold tracking-[-0.03em]">{SITIO.nombre}</p>
+        <p class="meta mt-3 text-sm leading-relaxed text-[var(--color-apunte)]">
+          Cada lunes, lo que ha pasado en inteligencia artificial durante la semana anterior.
+          Recopilado de fuentes públicas y publicado con el enlace a cada medio original.
+        </p>
+      </div>
+
+      {
+        columnas.map((columna) => (
+          <div>
+            <p class="meta text-xs tracking-[0.14em] text-[var(--color-tinta)] uppercase">
+              {columna.titulo}
+            </p>
+            <ul class="meta mt-4 flex flex-col gap-2.5 text-sm">
+              {columna.enlaces.map((enlace) => (
+                <li>
+                  <a
+                    href={enlace.href}
+                    rel={enlace.externo ? 'noopener noreferrer' : undefined}
+                    class="text-[var(--color-apunte)] no-underline transition-colors hover:text-[var(--color-senal)]"
+                  >
+                    {enlace.texto}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
     </div>
 
-    <div class="meta flex flex-col gap-2 text-sm text-[var(--color-apunte)]">
-      <a href="/rss.xml" class="no-underline hover:text-[var(--color-senal)]">Feed RSS</a>
-      <a href="/archivo" class="no-underline hover:text-[var(--color-senal)]">Todas las ediciones</a>
-      <a href="/acerca-de" class="no-underline hover:text-[var(--color-senal)]">Cómo se hace</a>
-      <p class="mt-2 text-xs">{ano} · Los enlaces apuntan a sus medios originales</p>
+    <div
+      class="meta mt-12 flex flex-col gap-3 border-t border-[var(--color-linea)] pt-6 text-xs text-[var(--color-apunte)] sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>{rango} {SITIO.responsable}</p>
+      <p>
+        Los titulares y enlaces pertenecen a sus medios. Aquí solo se resumen y se enlazan.
+      </p>
     </div>
   </div>
 </footer>

@@ -1,0 +1,97 @@
+---
+import Documento from '../layouts/Documento.astro';
+import { SITIO } from '../lib/sitio';
+---
+
+<Documento
+  titulo="Política de privacidad"
+  descripcion="Qué datos trata Semana IA, con qué finalidad, quién los recibe y cómo ejercer tus derechos."
+  entradilla="Este sitio no te pide datos para leerlo. Esto es todo lo que ocurre igualmente."
+  actualizado="7 de septiembre de 2026"
+>
+  <h2>Responsable del tratamiento</h2>
+  <p>
+    {SITIO.responsable}, editor de {SITIO.nombre}. Contacto:
+    <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a>.
+  </p>
+
+  <h2>Qué datos se tratan</h2>
+  <ul>
+    <li>
+      <strong>Si nos escribes:</strong> tu dirección de correo y lo que cuentes en el mensaje. Se
+      usa para responderte y para corregir lo que haya que corregir.
+    </li>
+    <li>
+      <strong>Datos técnicos de la visita:</strong> el alojamiento del sitio registra datos como la
+      dirección IP, la fecha, la página solicitada y el navegador. Es el registro habitual de
+      cualquier servidor y sirve para mantener el servicio y detectar abusos.
+    </li>
+    <li>
+      <strong>Preferencia de tema:</strong> si eliges el modo claro u oscuro, la elección se guarda
+      en el almacenamiento local de tu navegador. No sale de tu dispositivo y no llega a ningún
+      servidor.
+    </li>
+    <li>
+      <strong>Publicidad:</strong> cuando haya anuncios activos, Google y sus proveedores pueden
+      tratar datos de tu navegación para mostrarlos y medirlos. Lo detallamos en la
+      <a href="/cookies">política de cookies</a>.
+    </li>
+  </ul>
+  <p>
+    No hay registro de usuarios, ni boletín por correo, ni formularios que recojan datos. El feed
+    RSS se consulta sin identificarse.
+  </p>
+
+  <h2>Base jurídica</h2>
+  <ul>
+    <li>Responder a tu mensaje: tu propio consentimiento al escribirnos.</li>
+    <li>
+      Registros técnicos y seguridad del servicio: interés legítimo en mantener el sitio en
+      funcionamiento.
+    </li>
+    <li>
+      Publicidad personalizada y medición: tu consentimiento, que puedes dar o negar cuando se te
+      solicite y retirar después.
+    </li>
+  </ul>
+
+  <h2>Quién más los recibe</h2>
+  <ul>
+    <li>
+      <strong>Vercel Inc.</strong>, que aloja el sitio y genera los registros técnicos descritos
+      arriba.
+    </li>
+    <li>
+      <strong>Google Ireland Limited</strong>, si la publicidad está activa, como proveedor de
+      AdSense.
+    </li>
+  </ul>
+  <p>
+    Ambos pueden tratar datos fuera del Espacio Económico Europeo, amparados en los mecanismos de
+    transferencia internacional previstos en el Reglamento General de Protección de Datos. No se
+    ceden datos a nadie más ni se venden a terceros.
+  </p>
+
+  <h2>Cuánto tiempo se conservan</h2>
+  <p>
+    Los correos, mientras dure la conversación y el tiempo necesario para atender responsabilidades
+    derivadas de ella. Los registros técnicos, durante los plazos de retención del proveedor de
+    alojamiento. La preferencia de tema, hasta que borres los datos del sitio en tu navegador.
+  </p>
+
+  <h2>Tus derechos</h2>
+  <p>
+    Puedes solicitar el acceso a tus datos, su rectificación o supresión, la limitación u oposición
+    al tratamiento y la portabilidad, escribiendo a
+    <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a>. Si consideras que no se han atendido
+    correctamente, puedes reclamar ante la Agencia Española de Protección de Datos
+    (<a href="https://www.aepd.es" rel="noopener noreferrer">aepd.es</a>).
+  </p>
+
+  <h2>Cambios en esta política</h2>
+  <p>
+    Si cambia algo relevante, se actualiza esta página y con ella la fecha de revisión del
+    encabezado. Los cambios importantes, como la activación de la publicidad, se anunciarán además
+    en el propio sitio.
+  </p>
+</Documento>
