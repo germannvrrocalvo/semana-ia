@@ -1,0 +1,95 @@
+name: Desplegar en IONOS
+
+# Compila el sitio y lo sube al espacio web de IONOS. Es lo que hacia Vercel solo:
+# cada cambio en main acaba publicado.
+#
+# Se dispara de tres maneras:
+#   - push a main, que cubre lo que edites tu (la columna, una correccion);
+#   - llamada desde el workflow de la edicion semanal, porque el push que hace el
+#     robot con el token de Actions NO dispara otros workflows, y sin esto la
+#     edicion del lunes se quedaria sin subir;
+#   - a mano, para forzar una subida.
+on:
+  push:
+    branches: [main]
+  workflow_call:
+  workflow_dispatch:
+
+concurrency:
+  group: desplegar-ionos
+  cancel-in-progress: true
+
+jobs:
+  subir:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Comprobar los filtros
+        run: npm run probar
+
+      - run: npm run build
+
+      # Mientras no esten configurados los secretos, el trabajo termina bien y lo
+      # dice. Asi el repositorio no se llena de ejecuciones en rojo antes de que
+      # el alojamiento este listo.
+      - name: Comprobar que hay credenciales
+        id: credenciales
+        env:
+          SERVIDOR: ${{ secrets.IONOS_SERVIDOR }}
+        run: |
+          if [ -z "$SERVIDOR" ]; then
+            echo 'Sin IONOS_SERVIDOR configurado: no se sube nada.'
+            echo 'listo=0' >> "$GITHUB_OUTPUT"
+          else
+            echo 'listo=1' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Subir el sitio
+        if: steps.credenciales.outputs.listo == '1'
+        env:
+          SERVIDOR: ${{ secrets.IONOS_SERVIDOR }}
+          USUARIO: ${{ secrets.IONOS_USUARIO }}
+          CLAVE: ${{ secrets.IONOS_CLAVE }}
+          # Carpeta del espacio web donde vive el sitio. En muchos planes de IONOS
+          # es "/", en otros "/htdocs" o una subcarpeta de clickandbuilds.
+          RUTA: ${{ vars.IONOS_RUTA || '/' }}
+          # "ftps" o "sftp", segun lo que ofrezca el plan.
+          PROTOCOLO: ${{ vars.IONOS_PROTOCOLO || 'ftps' }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+
+          if [ "$PROTOCOLO" = "sftp" ]; then
+            DESTINO="sftp://$SERVIDOR"
+            AJUSTES="set sftp:auto-confirm true;"
+          else
+            DESTINO="$SERVIDOR"
+            AJUSTES="set ftp:ssl-force true; set ftp:ssl-protect-data true; set ssl:verify-certificate no;"
+          fi
+
+          # mirror -R sube; --delete borra en el servidor lo que ya no existe en
+          # dist, que es lo que evita que se acumulen ediciones viejas o archivos
+          # de versiones anteriores del sitio.
+          lftp -c "
+            set cmd:fail-exit true;
+            $AJUSTES
+            open -u '$USUARIO','$CLAVE' $DESTINO;
+            mirror -R --delete --parallel=4 --verbose=1 dist/ '$RUTA';
+          "
+
+      - name: Resumen
+        run: |
+          if [ '${{ steps.credenciales.outputs.listo }}' = '1' ]; then
+            echo 'Sitio subido a IONOS.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Compilado pero no subido: falta configurar los secretos de IONOS.' >> "$GITHUB_STEP_SUMMARY"
+          fi

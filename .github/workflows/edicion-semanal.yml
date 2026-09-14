@@ -94,3 +94,11 @@ jobs:
           fi
           git commit -m 'Edición ${{ steps.edicion.outputs.semana }} (${{ steps.edicion.outputs.noticias }} noticias)'
           git push
+
+  # El push de arriba lo hace el token de Actions, y GitHub no dispara workflows
+  # con esos push para evitar bucles. Sin esta llamada, la edicion del lunes se
+  # publicaria en el repositorio y no llegaria al alojamiento.
+  desplegar:
+    needs: generar
+    uses: ./.github/workflows/desplegar.yml
+    secrets: inherit

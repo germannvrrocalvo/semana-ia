@@ -1,0 +1,60 @@
+# Semana IA, configuracion de Apache.
+#
+# Este archivo hace en IONOS lo que hacia vercel.json: la redireccion permanente,
+# las cabeceras de seguridad, la pagina de error y el cacheado. Vive en public/,
+# asi que Astro lo copia tal cual a la raiz del sitio en cada compilacion.
+#
+# Si algo de aqui no funciona, casi siempre es que el modulo correspondiente no
+# esta activo en el plan. Por eso cada bloque va dentro de su <IfModule>: lo que
+# no exista se ignora en lugar de tumbar el sitio con un error 500.
+
+# Nadie tiene por que ver el listado de una carpeta sin index.
+Options -Indexes
+DirectoryIndex index.html
+
+# La pagina "Acerca de" paso a llamarse "Metodo". Redireccion permanente para no
+# perder lo que ya estuviera enlazado o indexado.
+RedirectMatch 301 ^/acerca-de/?$ /metodo/
+
+# Astro genera esta pagina en la raiz.
+ErrorDocument 404 /404.html
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+  # Los archivos de _astro llevan huella en el nombre: si cambia el contenido,
+  # cambia el nombre. Se pueden cachear para siempre sin miedo.
+  <FilesMatch "\.(js|css|woff2|woff|ttf)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # El HTML no: tiene que poder cambiar cada lunes.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE application/xml application/rss+xml image/svg+xml
+</IfModule>
+
+# El feed y el indice de busqueda necesitan su tipo correcto para que los lectores
+# de RSS y el navegador no se lien.
+<IfModule mod_mime.c>
+  AddType application/rss+xml .xml
+  AddType application/json .json
+  AddCharset UTF-8 .html .css .js .json .xml .txt
+</IfModule>
+
+# HTTPS obligatorio. DESCOMENTAR SOLO CUANDO EL CERTIFICADO ESTE ACTIVO en el
+# panel de IONOS: si se fuerza antes, el sitio queda inaccesible.
+#<IfModule mod_rewrite.c>
+#  RewriteEngine On
+#  RewriteCond %{HTTPS} !=on
+#  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+#</IfModule>
