@@ -1,12 +1,20 @@
 name: Edición semanal
 
-# Cada lunes a las 06:00 UTC (08:00 en la España peninsular). El robot recopila
-# las noticias de la semana anterior y publica la edición directamente en main.
-# El filtro es `npm run build`: si el esquema rechaza la edición, el trabajo falla
-# y no se publica nada.
+# Cada lunes por la mañana. El robot recopila las noticias de la semana anterior
+# y publica la edición directamente en main. El filtro es `npm run build`: si el
+# esquema rechaza la edición, el trabajo falla y no se publica nada.
+#
+# Cuatro horarios el mismo lunes, no uno. GitHub descarta los disparos por cron
+# cuando hay carga, y aquí se notó: de los tres primeros lunes solo llegó uno, y
+# con siete horas de retraso. Con cuatro intentos basta con que entre cualquiera.
+# El primero que encuentra la edición sin publicar la publica; los siguientes ven
+# que ya está y terminan sin hacer nada.
 on:
   schedule:
     - cron: '23 6 * * 1'
+    - cron: '23 9 * * 1'
+    - cron: '23 13 * * 1'
+    - cron: '23 17 * * 1'
   workflow_dispatch:
     inputs:
       dias:
@@ -49,12 +57,15 @@ jobs:
         run: |
           node scripts/build-issue.mjs \
             --dias "${{ inputs.dias || 7 }}" \
-            ${{ inputs.forzar && '--forzar' || '' }}
+            ${{ inputs.forzar && '--forzar' || '' }} \
+            ${{ github.event_name == 'schedule' && '--omitir-si-existe' || '' }}
 
       - name: Comprobar que el sitio sigue compilando
+        if: steps.edicion.outputs.omitida != '1'
         run: npm run build
 
       - name: Publicar la edición
+        if: steps.edicion.outputs.omitida != '1'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'

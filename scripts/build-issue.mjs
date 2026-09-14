@@ -9,12 +9,17 @@
 //   node scripts/build-issue.mjs --dry-run       -> la imprime sin guardarla
 //   node scripts/build-issue.mjs --forzar        -> sobrescribe una edicion existente
 //   node scripts/build-issue.mjs --dias 14       -> amplia la ventana de noticias
+//   node scripts/build-issue.mjs --omitir-si-existe -> no hace nada si ya esta publicada
+//
+// El ultimo sirve para las ejecuciones programadas repetidas: GitHub se salta
+// buena parte de los disparos por cron, asi que el workflow lo intenta varias
+// veces el mismo lunes y solo la primera tiene trabajo que hacer.
 
 import { writeFile, mkdir, access } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import Anthropic from '@anthropic-ai/sdk';
-import { recolectar } from './fetch-news.mjs';
+import { recolectar, semanaCerrada } from './fetch-news.mjs';
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DESTINO = join(RAIZ, 'src', 'content', 'ediciones');
@@ -216,15 +221,30 @@ function componerMarkdown(datos, redaccion) {
 
 // --- orquestacion -----------------------------------------------------------
 
-export async function generarEdicion({ dias = 7, dryRun = false, forzar = false } = {}) {
+const publicada = (ruta) => access(ruta).then(() => true, () => false);
+
+export async function generarEdicion({
+  dias = 7,
+  dryRun = false,
+  forzar = false,
+  omitirSiExiste = false,
+} = {}) {
+  // Se comprueba antes de descargar nada: si la edicion de esta semana ya esta
+  // publicada, no hay motivo para pedir diecinueve fuentes para tirarlas luego.
+  const semana = semanaCerrada();
+  if (omitirSiExiste && !forzar && (await publicada(join(DESTINO, `${semana}.md`)))) {
+    return { omitida: true, semana };
+  }
+
   const datos = await recolectar({ dias });
   if (datos.noticias.length === 0) throw new Error('No se ha recolectado ninguna noticia; revisa las fuentes');
 
   const ruta = join(DESTINO, `${datos.semana}.md`);
   if (!forzar && !dryRun) {
     // Sobrescribir en silencio borraria las correcciones a mano de una edicion ya revisada.
-    const existe = await access(ruta).then(() => true, () => false);
-    if (existe) throw new Error(`${datos.semana}.md ya existe. Usa --forzar para sobrescribirla.`);
+    if (await publicada(ruta)) {
+      throw new Error(`${datos.semana}.md ya existe. Usa --forzar para sobrescribirla.`);
+    }
   }
 
   let redaccion = null;
@@ -249,11 +269,25 @@ export async function generarEdicion({ dias = 7, dryRun = false, forzar = false 
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
-  const { ruta, markdown, datos, redaccion } = await generarEdicion({
+  const resultado = await generarEdicion({
     dias: Number(args[args.indexOf('--dias') + 1]) || 7,
     dryRun: args.includes('--dry-run'),
     forzar: args.includes('--forzar'),
+    omitirSiExiste: args.includes('--omitir-si-existe'),
   });
+
+  if (resultado.omitida) {
+    console.log(`La edicion ${resultado.semana} ya esta publicada; no hay nada que hacer.`);
+    if (process.env.GITHUB_OUTPUT) {
+      const { appendFileSync } = await import('node:fs');
+      appendFileSync(process.env.GITHUB_OUTPUT, `semana=${resultado.semana}
+omitida=1
+`);
+    }
+    process.exit(0);
+  }
+
+  const { ruta, markdown, datos, redaccion } = resultado;
 
   if (args.includes('--dry-run')) {
     console.log(markdown);
