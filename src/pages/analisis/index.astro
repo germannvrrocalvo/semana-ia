@@ -1,0 +1,68 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Migas from '../../components/Migas.astro';
+import { fechaLarga } from '../../lib/secciones';
+
+/* Los borradores no existen para el sitio: se quedan en el repositorio. */
+const piezas = (await getCollection('analisis', ({ data }) => !data.borrador)).sort(
+  (a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf(),
+);
+
+const migas = [{ nombre: 'Inicio', href: '/' }, { nombre: 'Análisis' }];
+---
+
+<Base
+  titulo="Análisis"
+  descripcion="Piezas de fondo sobre inteligencia artificial: criterio, contexto y lo que no caduca en una semana."
+  migas={migas}
+>
+  <div class="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+    <Migas migas={migas} />
+
+    <header class="mt-10 border-b border-[var(--color-linea)] pb-12">
+      <h1 class="titular-portada titular-portada--corto">Lo que no caduca</h1>
+      <p class="mt-8 max-w-[62ch] text-lg leading-relaxed text-[var(--color-apunte)]">
+        Una edición semanal cuenta lo que ha pasado. Aquí van las piezas que
+        siguen sirviendo dentro de un año: cómo se decide qué es noticia, qué mide de verdad un
+        número y por qué conviene desconfiar de algunas palabras.
+      </p>
+    </header>
+
+    {
+      piezas.length > 0 ? (
+        <ul class="mt-2">
+          {piezas.map((pieza) => (
+            <li class="grupo-titular entra border-b border-[var(--color-linea)]">
+              <a href={`/analisis/${pieza.id}`} class="block py-10 no-underline">
+                <p class="meta text-xs text-[var(--color-apunte)]">
+                  {fechaLarga(pieza.data.fecha)}
+                </p>
+
+                <h2 class="enlace-titular titular-seccion mt-4 max-w-[34ch]">
+                  {pieza.data.titulo}
+                </h2>
+
+                <p class="mt-4 max-w-[62ch] leading-relaxed text-[var(--color-apunte)]">
+                  {pieza.data.descripcion}
+                </p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div class="mt-14 max-w-[62ch]">
+          <p class="text-lg leading-relaxed text-[var(--color-apunte)]">
+            Todavía no hay ninguna pieza publicada. La primera está escribiéndose.
+          </p>
+          <p class="mt-5 leading-relaxed text-[var(--color-apunte)]">
+            Mientras tanto, el <a
+              href="/metodo"
+              class="text-[var(--color-senal)] underline underline-offset-4">método</a
+            > explica cómo se recopila y se filtra cada edición.
+          </p>
+        </div>
+      )
+    }
+  </div>
+</Base>

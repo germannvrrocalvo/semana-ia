@@ -10,9 +10,14 @@ interface Props {
   edicion: CollectionEntry<'ediciones'>;
   /** La portada usa h1 para el titular de la semana; el archivo, h2. */
   nivel?: 'h1' | 'h2';
+  /**
+   * La columna de la semana, si esta escrita. Su texto llega por el slot
+   * "columna"; aqui solo vienen los datos de cabecera y de firma.
+   */
+  columna?: { titulo: string; firma: string } | null;
 }
 
-const { edicion, nivel = 'h1' } = Astro.props;
+const { edicion, nivel = 'h1', columna = null } = Astro.props;
 const { data } = edicion;
 const Titulo = nivel;
 
@@ -85,14 +90,38 @@ const folio: [string, string][] = [
         arrancarlo desde opacity 0 retrasa la medida sin ganar nada. */}
     <Titulo class:list={['titular-portada', tamanoTitular]}>{titular}</Titulo>
 
+    {/*
+      Si la semana tiene columna, es lo que se lee aqui: firmada, a una columna y
+      con cuerpo de lectura. La entradilla que escribe el robot se queda en el
+      archivo de la edicion como material de trabajo, y no se publica: decir dos
+      veces lo mismo, una a maquina y otra a mano, no ayuda a nadie.
+    */}
     {
-      Astro.slots.has('default') && (
-        <div
-          class="asoma mt-10 max-w-[92ch] text-lg leading-relaxed text-[var(--color-apunte)] md:columns-2 md:gap-12 [&_p+p]:mt-4"
-          style="--turno: 1"
-        >
-          <slot />
+      columna ? (
+        <div class="asoma mt-12 border-t border-[var(--color-linea)] pt-10" style="--turno: 1">
+          <p class="meta text-xs tracking-[0.2em] text-[var(--color-senal)] uppercase">
+            La columna
+          </p>
+
+          <h2 class="titular-seccion mt-5 max-w-[30ch]">{columna.titulo}</h2>
+
+          <div class="mt-6 max-w-[68ch] text-lg leading-relaxed [&_h3]:mt-8 [&_h3]:text-xl [&_p+p]:mt-5">
+            <slot name="columna" />
+          </div>
+
+          <p class="meta mt-8 text-xs tracking-[0.14em] text-[var(--color-apunte)] uppercase">
+            {columna.firma}
+          </p>
         </div>
+      ) : (
+        Astro.slots.has('default') && (
+          <div
+            class="asoma mt-10 max-w-[92ch] text-lg leading-relaxed text-[var(--color-apunte)] md:columns-2 md:gap-12 [&_p+p]:mt-4"
+            style="--turno: 1"
+          >
+            <slot />
+          </div>
+        )
       )
     }
 

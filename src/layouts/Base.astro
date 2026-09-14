@@ -13,8 +13,8 @@ interface Props {
   canonica?: string;
   /** Mismas migas que pinta el componente Migas: aqui salen como BreadcrumbList. */
   migas?: Miga[];
-  /** Solo en las paginas de edicion: su ficha de Article para los buscadores. */
-  articulo?: { titulo: string; fecha: Date; seccion?: string };
+  /** En las ediciones y en las piezas de analisis: su ficha de Article. */
+  articulo?: { titulo: string; fecha: Date; modificada?: Date; firma?: string };
   /** Para paginas sin contenido propio, como los resultados de busqueda. */
   noIndexar?: boolean;
 }
@@ -80,11 +80,16 @@ const datosEstructurados = {
             headline: articulo.titulo,
             description: descripcion,
             datePublished: articulo.fecha.toISOString(),
-            dateModified: articulo.fecha.toISOString(),
+            dateModified: (articulo.modificada ?? articulo.fecha).toISOString(),
             inLanguage: 'es-ES',
             isAccessibleForFree: true,
             mainEntityOfPage: url.href,
-            author: { '@id': `${SITIO.url}/#editor` },
+            // Una pieza firmada la firma una persona; una edicion la firma la
+            // publicacion. Decir que una recopilacion automatica tiene autor
+            // seria atribuirle a alguien un texto que no ha escrito.
+            author: articulo.firma
+              ? { '@type': 'Person', name: articulo.firma }
+              : { '@id': `${SITIO.url}/#editor` },
             publisher: { '@id': `${SITIO.url}/#editor` },
             isPartOf: { '@id': `${SITIO.url}/#sitio` },
           },

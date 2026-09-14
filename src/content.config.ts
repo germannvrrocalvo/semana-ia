@@ -65,4 +65,50 @@ const ediciones = defineCollection({
   }),
 });
 
-export const collections = { ediciones };
+/*
+  La columna de la semana. Vive en su propia carpeta, y eso no es organizacion:
+  es la garantia de que el robot no puede pisarla. El workflow solo hace
+  `git add src/content/ediciones/`, asi que nada de lo que escribes tu esta al
+  alcance de una ejecucion automatica.
+
+  Si existe la columna de una semana, la edicion la muestra firmada y en primer
+  lugar, y la entradilla del robot pasa a ser material de trabajo. Si no existe,
+  la edicion se ve como siempre.
+*/
+const columnas = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/columnas' }),
+  schema: z.object({
+    /** La semana que comenta, con el mismo identificador que su edicion. */
+    semana: z.string().regex(/^\d{4}-W\d{2}$/, 'Formato esperado: 2026-W35'),
+    titulo: z.string(),
+    fecha: z.coerce.date(),
+    /** Quien firma. Una columna sin firma no es una columna. */
+    firma: z.string(),
+    /**
+     * Mientras sea true la columna no se publica: no sale en la edicion, ni en el
+     * indice, ni en el sitemap. Sirve para dejar un borrador a medias en el
+     * repositorio sin que lo lea nadie.
+     */
+    borrador: z.boolean().default(false),
+  }),
+});
+
+/*
+  Piezas de fondo: lo que no caduca. Un agregador con criterio necesita algun
+  texto que explique el criterio, y esto es donde va.
+*/
+const analisis = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/analisis' }),
+  schema: z.object({
+    titulo: z.string(),
+    /** Se usa como meta description y como entradilla, asi que conviene que valga para las dos. */
+    descripcion: z.string(),
+    fecha: z.coerce.date(),
+    /** Solo si se ha revisado despues de publicarla. Los buscadores lo miran. */
+    actualizada: z.coerce.date().optional(),
+    firma: z.string(),
+    borrador: z.boolean().default(false),
+  }),
+});
+
+export const collections = { ediciones, columnas, analisis };

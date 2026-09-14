@@ -4,6 +4,7 @@ import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Edicion from '../../components/Edicion.astro';
 import Migas from '../../components/Migas.astro';
+import { columnaDe } from '../../lib/columnas';
 
 export const getStaticPaths = (async () => {
   const ediciones = (await getCollection('ediciones')).sort(
@@ -19,6 +20,9 @@ export const getStaticPaths = (async () => {
 
 const { edicion, siguiente, anterior } = Astro.props;
 const { Content } = await render(edicion);
+
+const columna = await columnaDe(edicion.data.semana);
+const Columna = columna?.Content;
 
 const migas = [
   { nombre: 'Inicio', href: '/' },
@@ -37,8 +41,9 @@ const migas = [
     <Migas migas={migas} />
 
     <div class="mt-10">
-      <Edicion edicion={edicion} nivel="h1">
+      <Edicion edicion={edicion} nivel="h1" columna={columna?.datos ?? null}>
         <Content />
+        {Columna && <Columna slot="columna" />}
       </Edicion>
     </div>
 

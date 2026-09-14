@@ -13,7 +13,8 @@
     "noticias": "node scripts/fetch-news.mjs",
     "edicion": "node scripts/build-issue.mjs",
     "probar": "node scripts/probar-filtros.mjs",
-    "og": "node scripts/generar-og.mjs"
+    "og": "node scripts/generar-og.mjs",
+    "columna": "node scripts/nueva-columna.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",

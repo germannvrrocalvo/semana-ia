@@ -33,7 +33,21 @@ npm run edicion          # genera la edición de esta semana
 npm run edicion -- --dry-run   # la imprime por pantalla sin guardarla
 npm run edicion -- --forzar    # sobrescribe una edición ya existente
 npm run og               # regenera public/og.png, la imagen para redes
+npm run columna          # prepara la columna de la ultima edicion publicada
 ```
+
+## Lo que escribe la maquina y lo que escribes tu
+
+Tres carpetas, y solo la primera la toca el proceso automatico:
+
+- `src/content/ediciones/` las escribe el robot cada lunes. El workflow hace
+  `git add` solo de esta carpeta.
+- `src/content/columnas/` es la columna semanal, firmada. `npm run columna` deja
+  el archivo preparado con el material de la edicion recogido arriba. Nace con
+  `borrador: true`: hasta que lo quites, no se publica. Cuando existe, sustituye
+  a la entradilla del robot en la portada.
+- `src/content/analisis/` son las piezas de fondo, con su propia ruta en
+  `/analisis`, su firma y su ficha de Article para los buscadores.
 
 ## Editar el contenido
 

@@ -4,6 +4,7 @@ import Base from '../layouts/Base.astro';
 import Edicion from '../components/Edicion.astro';
 import MuroMedios from '../components/MuroMedios.astro';
 import { fechaLarga } from '../lib/secciones';
+import { columnaDe } from '../lib/columnas';
 
 const ediciones = (await getCollection('ediciones')).sort(
   (a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf(),
@@ -12,6 +13,9 @@ const ediciones = (await getCollection('ediciones')).sort(
 const ultima = ediciones[0];
 const anteriores = ediciones.slice(1, 4);
 const { Content } = ultima ? await render(ultima) : { Content: null };
+
+const columna = ultima ? await columnaDe(ultima.data.semana) : null;
+const Columna = columna?.Content;
 ---
 
 <Base
@@ -24,8 +28,9 @@ const { Content } = ultima ? await render(ultima) : { Content: null };
     ultima ? (
       <>
         <div class="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
-          <Edicion edicion={ultima} nivel="h1">
+          <Edicion edicion={ultima} nivel="h1" columna={columna?.datos ?? null}>
             {Content && <Content />}
+            {Columna && <Columna slot="columna" />}
           </Edicion>
         </div>
 
