@@ -2,6 +2,7 @@
 import type { GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import Migas from '../../components/Migas.astro';
 import { aSlug, fechaLarga } from '../../lib/secciones';
 
 export const getStaticPaths = (async () => {
@@ -29,14 +30,23 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { etiqueta, ediciones } = Astro.props;
+
+const migas = [
+  { nombre: 'Inicio', href: '/' },
+  { nombre: 'Temas', href: '/temas' },
+  { nombre: etiqueta },
+];
 ---
 
 <Base
   titulo={`Tema: ${etiqueta}`}
   descripcion={`Ediciones de Semana IA marcadas con el tema ${etiqueta}.`}
+  migas={migas}
 >
-  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
-    <header class="border-b-2 border-[var(--color-tinta)] pb-10">
+  <div class="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+    <Migas migas={migas} />
+
+    <header class="mt-10 border-b-2 border-[var(--color-tinta)] pb-10">
       <p class="meta text-xs uppercase tracking-[0.2em] text-[var(--color-senal)]">Tema</p>
       <h1 class="titular-portada mt-5">{etiqueta}</h1>
       <p class="meta mt-5 text-sm text-[var(--color-apunte)]">

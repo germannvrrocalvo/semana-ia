@@ -1,0 +1,73 @@
+---
+/*
+  Hueco publicitario.
+
+  Mientras no existan las variables de entorno, este componente no pinta nada:
+  ni una caja vacia, ni un borde, ni un "espacio reservado para publicidad". Es
+  lo que permite pedir la revision de AdSense con el sitio limpio y encender los
+  anuncios despues sin volver a tocar las plantillas.
+
+  Los identificadores de bloque salen del panel de AdSense y no se pueden
+  adivinar, asi que cada posicion tiene su propia variable. Si falta la del hueco
+  concreto, ese hueco sigue apagado aunque el resto esten encendidos.
+
+  Reglas de colocacion que se respetan aqui y en quien lo usa:
+  - nunca por encima del titular;
+  - nunca pegado a un enlace o a un boton, para que no se confunda con la navegacion;
+  - siempre con la etiqueta "Publicidad" visible;
+  - altura minima reservada, para que al cargar no empuje el texto hacia abajo.
+*/
+type Posicion = 'en-edicion' | 'en-listado' | 'lateral';
+
+interface Props {
+  posicion: Posicion;
+}
+
+const { posicion } = Astro.props;
+
+const cliente = import.meta.env.PUBLIC_ADSENSE_CLIENT?.trim();
+
+const BLOQUES: Record<Posicion, string | undefined> = {
+  'en-edicion': import.meta.env.PUBLIC_ADSENSE_SLOT_EDICION?.trim(),
+  'en-listado': import.meta.env.PUBLIC_ADSENSE_SLOT_LISTADO?.trim(),
+  lateral: import.meta.env.PUBLIC_ADSENSE_SLOT_LATERAL?.trim(),
+};
+
+/* Alto reservado por posicion, en pixeles. Evita que el contenido salte (CLS). */
+const ALTURA: Record<Posicion, number> = {
+  'en-edicion': 280,
+  'en-listado': 250,
+  lateral: 600,
+};
+
+const bloque = BLOQUES[posicion];
+const activo = Boolean(cliente && bloque);
+---
+
+{
+  activo && (
+    <aside
+      class="my-16 border-y border-[var(--color-linea)] py-6"
+      aria-label="Publicidad"
+    >
+      <p class="meta text-[0.7rem] tracking-[0.14em] text-[var(--color-apunte)] uppercase">
+        Publicidad
+      </p>
+
+      <div class="mt-4 flex justify-center" style={`min-height: ${ALTURA[posicion]}px`}>
+        <ins
+          class="adsbygoogle"
+          style="display:block;width:100%"
+          data-ad-client={cliente}
+          data-ad-slot={bloque}
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        />
+      </div>
+
+      <script is:inline>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </aside>
+  )
+}

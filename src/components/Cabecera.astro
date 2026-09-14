@@ -1,12 +1,16 @@
 ---
 const ruta = Astro.url.pathname;
 const enlaces = [
+  { href: '/', texto: 'Esta semana' },
   { href: '/archivo', texto: 'Archivo' },
   { href: '/temas', texto: 'Temas' },
-  { href: '/acerca-de', texto: 'Acerca de' },
-  { href: '/contacto', texto: 'Contacto' },
+  { href: '/metodo', texto: 'Método' },
+  { href: '/buscar', texto: 'Buscar' },
 ];
-const activo = (href: string) => ruta === href || ruta.startsWith(`${href}/`);
+
+// La portada es el unico enlace que no admite prefijo: "/" seria prefijo de todo.
+const activo = (href: string) =>
+  href === '/' ? ruta === '/' : ruta === href || ruta.startsWith(`${href}/`);
 ---
 
 {/* El filete bermellon sobre la cabecera es el unico uso del acento como bloque:

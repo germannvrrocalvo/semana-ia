@@ -27,10 +27,12 @@ Una edición es **un archivo Markdown**. Todo lo demás son plantillas que lo pi
 ```bash
 npm run dev              # servidor de desarrollo en localhost:4321
 npm run build            # compila el sitio a dist/
+npm run probar           # comprueba los filtros de entrada (sin red)
 npm run noticias         # imprime las noticias de la semana sin escribir nada
 npm run edicion          # genera la edición de esta semana
 npm run edicion -- --dry-run   # la imprime por pantalla sin guardarla
 npm run edicion -- --forzar    # sobrescribe una edición ya existente
+npm run og               # regenera public/og.png, la imagen para redes
 ```
 
 ## Editar el contenido

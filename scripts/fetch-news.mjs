@@ -25,7 +25,11 @@ const AGENTE = 'Mozilla/5.0 (compatible; SemanaIA/1.0; +https://github.com/)';
 const TERMINOS_IA = [
   'ai', 'a\\.i\\.', 'artificial intelligence', 'inteligencia artificial', 'machine learning',
   'aprendizaje automatico', 'llm', 'llms', 'gpt', 'gpt-\\d', 'chatgpt', 'claude', 'gemini',
-  'llama', 'mistral', 'deepseek', 'qwen', 'grok', 'copilot', 'openai', 'anthropic', 'deepmind',
+  // "llama" a secas es el presente de "llamar", y con eso entro en la edicion
+  // del 14 de septiembre un articulo de cupones de AliExpress: "Esta se llama
+  // Rebajas de otono". El modelo de Meta siempre viene con version o apellido.
+  'llama[ -]?\\d', 'code llama', 'llama guard',
+  'mistral', 'deepseek', 'qwen', 'grok', 'copilot', 'openai', 'anthropic', 'deepmind',
   'hugging face', 'red neuronal', 'neural network', 'modelo de lenguaje', 'language model',
   'generative', 'generativa', 'agentes de ia', 'ai agent', 'agentic', 'transformer',
   'chatbot', 'midjourney', 'stable diffusion', 'sora', 'perplexity',
@@ -206,9 +210,50 @@ async function leerHackerNews(fuente, desde) {
 
 // --- filtrado, agrupado y puntuacion ----------------------------------------
 
-function esDeIA(noticia) {
+export function esDeIA(noticia) {
   if (noticia.categoria === 'oficial' || noticia.categoria === 'investigacion') return true;
   return REGEX_IA.test(normalizar(`${noticia.titulo} ${noticia.extracto}`));
+}
+
+/**
+ * Contenido comercial: ofertas, cupones y enlaces de afiliacion. Se mira el
+ * titular y el extracto, no solo el titular, porque el aviso de afiliacion
+ * ("obtenemos comision") vive en el cuerpo, y es la senal mas fiable que hay:
+ * en Espana es obligatorio declararlo, asi que lo escriben ellos mismos.
+ *
+ * Va aparte de palabrasRuido porque aquello se queda en el titular y basta para
+ * los "gift guide" en ingles. Esto persigue un genero entero.
+ */
+export function esComercial(noticia, config) {
+  const marcas = config.marcasComerciales ?? [];
+  if (marcas.length === 0) return false;
+  const texto = normalizar(`${noticia.titulo} ${noticia.extracto}`);
+  return marcas.some((m) => texto.includes(normalizar(m)));
+}
+
+/**
+ * Secciones de un medio que nunca son noticia. Xataka publica sus ofertas bajo
+ * /seleccion/, y ninguna es una noticia de IA por mucho que el texto mencione un
+ * modelo. Se declara por fuente en fuentes.json porque es conocimiento sobre un
+ * medio concreto, no una regla general.
+ */
+export function enRutaExcluida(noticia, fuente) {
+  const rutas = fuente?.rutasExcluidas ?? [];
+  return rutas.some((r) => noticia.url.toLowerCase().includes(r.toLowerCase()));
+}
+
+/**
+ * La puerta de entrada a una edicion, en un solo sitio. Vive aqui y no dentro de
+ * recolectar() para que scripts/probar-filtros.mjs pueda comprobar el filtro de
+ * verdad y no una copia que se queda vieja.
+ */
+export function admitir(noticia, config, fuente) {
+  if (enRutaExcluida(noticia, fuente)) return false;
+  if (config.palabrasRuido.some((r) => normalizar(noticia.titulo).includes(normalizar(r)))) {
+    return false;
+  }
+  if (esComercial(noticia, config)) return false;
+  return esDeIA(noticia);
 }
 
 /**
@@ -311,13 +356,12 @@ export async function recolectar({ dias = 7, maximo = 24 } = {}) {
     }),
   );
 
-  const ruido = config.palabrasRuido.map(normalizar);
+  const porId = new Map(config.fuentes.map((f) => [f.id, f]));
   const candidatas = resultados
     .flat()
     .filter((n) => n.titulo && n.url)
     .filter((n) => n.fecha && !Number.isNaN(n.fecha.valueOf()) && n.fecha >= desde && n.fecha <= ahora)
-    .filter((n) => !ruido.some((r) => normalizar(n.titulo).includes(r)))
-    .filter(esDeIA);
+    .filter((n) => admitir(n, config, porId.get(n.fuenteId)));
 
   // Un mismo enlace puede llegar por dos caminos; nos quedamos con la primera copia.
   const porUrl = new Map();

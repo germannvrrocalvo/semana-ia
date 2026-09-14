@@ -3,6 +3,8 @@ import type { CollectionEntry } from 'astro:content';
 import { agruparPorSeccion, fechaCorta, fechaLarga } from '../lib/secciones';
 import { marcaDe } from '../lib/marcas';
 import Marca from './Marca.astro';
+import PorQueImporta from './PorQueImporta.astro';
+import Anuncio from './Anuncio.astro';
 
 interface Props {
   edicion: CollectionEntry<'ediciones'>;
@@ -105,6 +107,8 @@ const folio: [string, string][] = [
             <p class="mt-4 leading-relaxed text-[var(--color-apunte)]">{apertura.resumen}</p>
           )}
 
+          <PorQueImporta texto={apertura.porQueImporta} />
+
           <p class="meta mt-5 flex items-center gap-2.5 text-xs text-[var(--color-apunte)]">
             <Marca marca={marcaDe(apertura.fuente)} lado={22} />
             <span class="text-[var(--color-tinta)]">{apertura.fuente}</span>
@@ -174,6 +178,8 @@ const folio: [string, string][] = [
                 </p>
               )}
 
+              <PorQueImporta texto={entrada.porQueImporta} />
+
               {entrada.tambienEn.length > 0 && (
                 <p class="meta mt-3 text-xs text-[var(--color-apunte)]">
                   También en {entrada.tambienEn.join(', ')}
@@ -185,6 +191,8 @@ const folio: [string, string][] = [
       </section>
     )
   }
+
+  <Anuncio posicion="en-edicion" />
 
   {/* Cuerpo por secciones. La cabecera de seccion lleva filete grueso encima, que
       es lo que marca el cambio de bloque cuando la edicion se hace larga. */}

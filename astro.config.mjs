@@ -15,5 +15,11 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // /buscar no tiene contenido propio que indexar: lleva noindex, y anunciarla
+      // en el sitemap al mismo tiempo seria pedirle a Google dos cosas contrarias.
+      filter: (pagina) => !pagina.includes('/buscar'),
+    }),
+  ],
 });

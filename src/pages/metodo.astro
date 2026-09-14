@@ -25,7 +25,7 @@ const porCategoria = Object.entries(
 ---
 
 <Base
-  titulo="Acerca de"
+  titulo="Método"
   descripcion="Cómo se recopila, se ordena y se publica cada edición de Semana IA, y qué papel tiene la inteligencia artificial en el proceso."
 >
   <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
@@ -82,6 +82,42 @@ const porCategoria = Object.entries(
         <p>
           Cuando una edición se genera sin el modelo disponible, se publica igualmente con el
           extracto original de cada medio, y así queda indicado en la propia edición.
+        </p>
+      </div>
+    </section>
+
+    <section class="entra mt-14 grid gap-x-12 gap-y-8 lg:grid-cols-12">
+      <h2 class="filete-seccion meta text-sm tracking-[0.14em] uppercase lg:col-span-3">
+        Lo que no entra
+      </h2>
+
+      <div class="max-w-[62ch] text-lg leading-relaxed lg:col-span-9 [&>p+p]:mt-5">
+        <p>
+          Una publicación especializada se nota sobre todo en lo que deja fuera. Aquí se descarta,
+          antes de puntuar nada:
+        </p>
+        <ul class="mt-5 list-outside list-disc space-y-2 pl-5">
+          <li>
+            Las ofertas y los cupones. Muchos medios los publican en una sección propia, y esas
+            secciones están excluidas fuente por fuente.
+          </li>
+          <li>
+            Los publirreportajes. Cuando un texto lleva una declaración de patrocinio o de comisión
+            de afiliación, que en España es obligatoria, esa declaración lo delata y se descarta.
+          </li>
+          <li>
+            Lo que no trata de inteligencia artificial, aunque venga de un medio de tecnología.
+          </li>
+          <li>
+            Las listas de trucos y los casos de éxito de clientes en blogs corporativos, que no se
+            descartan del todo pero se hunden en el orden.
+          </li>
+          <li>La misma historia contada por cinco medios, que se agrupa en una sola entrada.</li>
+        </ul>
+        <p>
+          Estos filtros tienen pruebas automáticas con casos reales, incluidos los dos artículos
+          comerciales que sí llegaron a publicarse en septiembre de 2026. Se ejecutan antes de
+          generar cada edición: si un cambio vuelve a dejar pasar uno, la edición no se publica.
         </p>
       </div>
     </section>

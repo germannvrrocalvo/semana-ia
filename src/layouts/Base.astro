@@ -4,14 +4,22 @@ import Cabecera from '../components/Cabecera.astro';
 import Pie from '../components/Pie.astro';
 import { SITIO } from '../lib/sitio';
 
+import type { Miga } from '../components/Migas.astro';
+
 interface Props {
   titulo: string;
   descripcion: string;
   /** Marca la portada para que los buscadores no la traten como duplicado de la ultima edicion. */
   canonica?: string;
+  /** Mismas migas que pinta el componente Migas: aqui salen como BreadcrumbList. */
+  migas?: Miga[];
+  /** Solo en las paginas de edicion: su ficha de Article para los buscadores. */
+  articulo?: { titulo: string; fecha: Date; seccion?: string };
+  /** Para paginas sin contenido propio, como los resultados de busqueda. */
+  noIndexar?: boolean;
 }
 
-const { titulo, descripcion, canonica } = Astro.props;
+const { titulo, descripcion, canonica, migas, articulo, noIndexar } = Astro.props;
 const url = new URL(canonica ?? Astro.url.pathname, Astro.site);
 const tituloCompleto = titulo === SITIO.nombre ? titulo : `${titulo} · ${SITIO.nombre}`;
 
@@ -22,6 +30,11 @@ const tituloCompleto = titulo === SITIO.nombre ? titulo : `${titulo} · ${SITIO.
 */
 const adsense = import.meta.env.PUBLIC_ADSENSE_CLIENT?.trim();
 
+/*
+  Datos estructurados. El sitio y el editor van en todas las paginas; las migas y
+  la ficha de Article solo donde existen de verdad. Ningun campo se rellena con
+  un valor inventado: si no hay dato, la propiedad no se emite.
+*/
 const datosEstructurados = {
   '@context': 'https://schema.org',
   '@graph': [
@@ -43,6 +56,40 @@ const datosEstructurados = {
       founder: SITIO.responsable,
       foundingDate: String(SITIO.desde),
     },
+    ...(migas && migas.length > 1
+      ? [
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: migas.map((miga, i) => ({
+              '@type': 'ListItem',
+              position: i + 1,
+              name: miga.nombre,
+              ...(miga.href ? { item: new URL(miga.href, Astro.site).href } : {}),
+            })),
+          },
+        ]
+      : []),
+    ...(articulo
+      ? [
+          {
+            // Article y no NewsArticle: una edicion es una recopilacion comentada
+            // de noticias ajenas, no una pieza informativa propia. Decir lo
+            // contrario seria pedirle a Google que la trate como lo que no es.
+            '@type': 'Article',
+            '@id': `${url.href}#edicion`,
+            headline: articulo.titulo,
+            description: descripcion,
+            datePublished: articulo.fecha.toISOString(),
+            dateModified: articulo.fecha.toISOString(),
+            inLanguage: 'es-ES',
+            isAccessibleForFree: true,
+            mainEntityOfPage: url.href,
+            author: { '@id': `${SITIO.url}/#editor` },
+            publisher: { '@id': `${SITIO.url}/#editor` },
+            isPartOf: { '@id': `${SITIO.url}/#sitio` },
+          },
+        ]
+      : []),
   ],
 };
 ---
@@ -55,14 +102,26 @@ const datosEstructurados = {
     <title>{tituloCompleto}</title>
     <meta name="description" content={descripcion} />
     <link rel="canonical" href={url} />
+    {/* Una pagina de resultados no aporta contenido propio al indice, pero sus
+        enlaces si valen: noindex, follow. */}
+    {noIndexar && <meta name="robots" content="noindex, follow" />}
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={articulo ? 'article' : 'website'} />
+    {articulo && <meta property="article:published_time" content={articulo.fecha.toISOString()} />}
     <meta property="og:site_name" content={SITIO.nombre} />
     <meta property="og:title" content={tituloCompleto} />
     <meta property="og:description" content={descripcion} />
     <meta property="og:url" content={url} />
     <meta property="og:locale" content="es_ES" />
-    <meta name="twitter:card" content="summary" />
+    {/* Una sola imagen para todo el sitio, con la cabecera de la publicacion.
+        Se genera con `npm run og` y se versiona: hacerla por edicion exigiria
+        rasterizar tipografias en el runner de CI, donde no estan instaladas. */}
+    <meta property="og:image" content={new URL('/og.png', Astro.site).href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${SITIO.nombre}: cada lunes, lo que ha pasado en inteligencia artificial`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={new URL('/og.png', Astro.site).href} />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" type="application/rss+xml" title={SITIO.nombre} href="/rss.xml" />

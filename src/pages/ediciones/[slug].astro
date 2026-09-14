@@ -3,6 +3,7 @@ import type { GetStaticPaths } from 'astro';
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Edicion from '../../components/Edicion.astro';
+import Migas from '../../components/Migas.astro';
 
 export const getStaticPaths = (async () => {
   const ediciones = (await getCollection('ediciones')).sort(
@@ -18,13 +19,28 @@ export const getStaticPaths = (async () => {
 
 const { edicion, siguiente, anterior } = Astro.props;
 const { Content } = await render(edicion);
+
+const migas = [
+  { nombre: 'Inicio', href: '/' },
+  { nombre: 'Archivo', href: '/archivo' },
+  { nombre: `Semana ${edicion.data.semana.split('-W')[1]}` },
+];
 ---
 
-<Base titulo={edicion.data.titulo} descripcion={edicion.data.destacado}>
-  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
-    <Edicion edicion={edicion} nivel="h1">
-      <Content />
-    </Edicion>
+<Base
+  titulo={edicion.data.titulo}
+  descripcion={edicion.data.destacado}
+  migas={migas}
+  articulo={{ titulo: edicion.data.destacado, fecha: edicion.data.fecha }}
+>
+  <div class="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+    <Migas migas={migas} />
+
+    <div class="mt-10">
+      <Edicion edicion={edicion} nivel="h1">
+        <Content />
+      </Edicion>
+    </div>
 
     <nav class="meta flex flex-wrap justify-between gap-4 pt-10 text-sm" aria-label="Otras ediciones">
       {

@@ -1,0 +1,26 @@
+---
+interface Props {
+  texto?: string;
+}
+
+const { texto } = Astro.props;
+---
+
+{/*
+  La lectura de la noticia, separada del hecho. Lleva filete bermellon a la
+  izquierda porque es lo unico de la pagina que no es ni titular ni dato: es la
+  voz de la publicacion, y conviene que se vea que lo es.
+
+  No se pinta nada cuando el campo no existe. La mitad de las noticias de una
+  semana no tienen mas lectura que el hecho, y rellenarlo se nota.
+*/}
+{
+  texto && (
+    <div class="mt-4 border-l-2 border-[var(--color-senal)] pl-4">
+      <p class="meta text-[0.7rem] tracking-[0.14em] text-[var(--color-senal)] uppercase">
+        Por qué importa
+      </p>
+      <p class="mt-1.5 leading-relaxed">{texto}</p>
+    </div>
+  )
+}

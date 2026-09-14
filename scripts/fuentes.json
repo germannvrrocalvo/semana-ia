@@ -23,17 +23,17 @@
 
     { "id": "hackernews",    "nombre": "Hacker News",         "tipo": "hn",  "url": "https://hn.algolia.com/api/v1/search_by_date",                 "peso": 3, "categoria": "comunidad", "minPuntos": 150 },
 
-    { "id": "xataka",        "nombre": "Xataka",              "tipo": "rss", "url": "https://www.xataka.com/feedburner.xml",      "peso": 3, "categoria": "espanol" },
-    { "id": "hipertextual",  "nombre": "Hipertextual",        "tipo": "rss", "url": "https://hipertextual.com/feed",                                "peso": 2, "categoria": "espanol" }
+    { "id": "xataka",        "nombre": "Xataka",              "tipo": "rss", "url": "https://www.xataka.com/feedburner.xml",      "peso": 3, "categoria": "espanol", "rutasExcluidas": ["/seleccion/"] },
+    { "id": "hipertextual",  "nombre": "Hipertextual",        "tipo": "rss", "url": "https://hipertextual.com/feed",                                "peso": 2, "categoria": "espanol", "rutasExcluidas": ["/brands/"] }
   ],
 
   "_comentario_temas": "Cada noticia se asigna a la PRIMERA seccion cuyas palabras clave aparezcan en su titulo o extracto. Si no encaja en ninguna, cae en 'producto'.",
   "secciones": [
     { "id": "modelos",       "titulo": "Modelos y lanzamientos", "claves": ["lanza", "presenta", "unveil", "launch", "release", "introducing", "announce", "gpt-", "claude", "gemini", "llama", "mistral", "qwen", "deepseek", "grok", "modelo", "model", "benchmark", "sota", "multimodal", "razonamiento", "reasoning"] },
     { "id": "producto",      "titulo": "Producto y herramientas", "claves": ["app", "aplicacion", "herramienta", "tool", "feature", "funcion", "api", "sdk", "agente", "agent", "asistente", "assistant", "copilot", "chatbot", "integra", "disponible"] },
-    { "id": "investigacion", "titulo": "Investigacion",           "claves": ["arxiv", "paper", "estudio", "study", "research", "investigacion", "hallazgo", "experiment", "interpretab", "alineamiento", "alignment", "safety", "seguridad de modelos"] },
-    { "id": "negocio",       "titulo": "Negocio y financiacion",  "claves": ["ronda", "funding", "raise", "raised", "valuation", "valoracion", "millones", "billion", "million", "adquiere", "acquisition", "acquires", "ipo", "revenue", "ingresos", "inversion", "invest", "startup", "contrato", "deal", "partnership", "acuerdo"] },
-    { "id": "regulacion",    "titulo": "Regulacion",              "claves": ["regula", "regulation", "ley", "law", "eu ai act", "ai act", "demanda", "lawsuit", "copyright", "derechos de autor", "privacidad", "privacy", "gdpr", "gobierno", "government", "senate", "congress", "comision europea", "tribunal", "court", "multa", "fine", "prohib", "ban"] },
+    { "id": "investigacion", "titulo": "Investigación",           "claves": ["arxiv", "paper", "estudio", "study", "research", "investigacion", "hallazgo", "experiment", "interpretab", "alineamiento", "alignment", "safety", "seguridad de modelos"] },
+    { "id": "negocio",       "titulo": "Negocio y financiación",  "claves": ["ronda", "funding", "raise", "raised", "valuation", "valoracion", "millones", "billion", "million", "adquiere", "acquisition", "acquires", "ipo", "revenue", "ingresos", "inversion", "invest", "startup", "contrato", "deal", "partnership", "acuerdo"] },
+    { "id": "regulacion",    "titulo": "Regulación",              "claves": ["regula", "regulation", "ley", "law", "eu ai act", "ai act", "demanda", "lawsuit", "copyright", "derechos de autor", "privacidad", "privacy", "gdpr", "gobierno", "government", "senate", "congress", "comision europea", "tribunal", "court", "multa", "fine", "prohib", "ban"] },
     { "id": "open-source",   "titulo": "Open source",             "claves": ["open source", "codigo abierto", "open-weight", "pesos abiertos", "apache 2", "mit license", "github", "hugging face", "open model", "self-host"] }
   ],
 
@@ -43,6 +43,9 @@
   "_comentario_penalizadas": "Patrones (regex, sin distinguir mayusculas) que restan puntos a las entradas de blogs OFICIALES, cuyas entradas no pasan el filtro de relevancia de IA. Filtran dos cosas que no son noticia: casos de exito comerciales y listiculos de trucos. El feed de IA de Google, por ejemplo, publica articulos de estilo de vida.",
   "patronesPromocionales": ["^how ", "^why ", "using (chatgpt|codex|claude|gemini|copilot)", "[0-9]+% (faster|more|using|less)", "customer story", "case study", "success story", "^[0-9]+ (ways|things|tips|reasons)", "^(cinco|seis|siete|ocho|nueve|diez|[0-9]+) (formas|maneras|claves|trucos|consejos)", "ways to use", "formas de usar", "^tips ", "guia para"],
 
-  "_comentario_ruido": "Si el titulo contiene alguna de estas, la noticia se descarta. Filtra publirreportajes y contenido de relleno.",
-  "palabrasRuido": ["deal of the day", "best deals", "discount", "coupon", "sponsored", "black friday", "gift guide", "how to watch", "horoscop", "podcast episode", "the download:", "weekly roundup", "esta semana en"]
+  "_comentario_ruido": "Si el TITULO contiene alguna de estas, la noticia se descarta. Filtra publirreportajes y contenido de relleno. Ojo con anadir palabras demasiado generales: 'oferta' o 'descuento' a secas tambien aparecen en noticias reales de precios de API, y se llevarian por delante lo que si es noticia.",
+  "palabrasRuido": ["deal of the day", "best deals", "discount", "coupon", "sponsored", "black friday", "gift guide", "how to watch", "horoscop", "podcast episode", "the download:", "weekly roundup", "esta semana en", "cupon", "cupones", "chollo", "chollos", "mejores ofertas", "ofertas del dia", "guia de compra", "rebajas", "precio minimo historico", "al mejor precio"],
+
+  "_comentario_comerciales": "Estas se buscan en el titular Y en el extracto, y descartan la noticia. Son avisos que el propio medio escribe en el cuerpo de sus articulos de afiliacion, empezando por la declaracion de comision, que en Espana es obligatoria. Por eso son de altisima precision: una noticia de verdad no dice 'obtenemos comision'.",
+  "marcasComerciales": ["obtenemos comision", "obtenemos una comision", "cupones de descuento", "cupon de descuento", "compra minima", "el precio podria variar", "enlace de afiliado", "enlaces de afiliado", "en oferta por solo", "precio mas bajo de la historia", "contenido patrocinado", "patrocinado por", "sponsored by", "this article is sponsored", "brought to you by", "paid content", "advertorial", "presented by our partner"]
 }

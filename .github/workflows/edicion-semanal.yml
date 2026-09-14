@@ -59,6 +59,12 @@ jobs:
 
       - run: npm ci
 
+      # Si un cambio en los filtros vuelve a dejar pasar un articulo de ofertas,
+      # la edicion no se genera. Son casos fijos, sin red: no pueden fallar por
+      # que una fuente este caida.
+      - name: Comprobar los filtros
+        run: npm run probar
+
       - name: Generar la edición
         id: edicion
         env:

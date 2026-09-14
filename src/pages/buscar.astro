@@ -1,0 +1,239 @@
+---
+import Base from '../layouts/Base.astro';
+import Migas from '../components/Migas.astro';
+import { SECCIONES } from '../lib/secciones';
+
+const migas = [{ nombre: 'Inicio', href: '/' }, { nombre: 'Buscar' }];
+---
+
+{/*
+  Buscador. El indice se descarga de /indice-busqueda.json al abrir la pagina y se
+  filtra en el navegador: el sitio es estatico y no hay a quien preguntar.
+
+  Necesita JavaScript, y es la unica parte del sitio que lo necesita. Sin el se ve
+  el formulario y un aviso, no una caja que no hace nada.
+*/}
+<Base
+  titulo="Buscar"
+  descripcion="Busca entre todas las noticias publicadas en Semana IA por titular, medio o tema."
+  migas={migas}
+  noIndexar
+>
+  <div class="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+    <Migas migas={migas} />
+
+    <header class="mt-10 border-b-2 border-[var(--color-tinta)] pb-10">
+      <h1 class="titular-portada">Buscar en el archivo</h1>
+      <p class="mt-6 max-w-[62ch] leading-relaxed text-[var(--color-apunte)]">
+        Por titular, por medio o por tema. Busca sobre todas las noticias publicadas, no sobre la
+        web entera.
+      </p>
+    </header>
+
+    <form id="formulario" class="mt-10" role="search" action="/buscar" method="get">
+      <label for="q" class="meta block text-xs tracking-[0.14em] text-[var(--color-apunte)] uppercase">
+        Qué buscas
+      </label>
+
+      <div class="mt-3 flex flex-wrap gap-3">
+        <input
+          type="search"
+          id="q"
+          name="q"
+          autocomplete="off"
+          placeholder="agentes, Mistral, regulación, chips..."
+          class="meta min-w-0 flex-1 border border-[var(--color-linea)] bg-transparent px-4 py-3 text-base text-[var(--color-tinta)] placeholder:text-[var(--color-apunte)] focus:border-[var(--color-tinta)] focus:outline-none"
+        />
+        <button
+          type="submit"
+          class="meta cursor-pointer bg-[var(--color-tinta)] px-6 py-3 text-sm text-[var(--color-papel)] transition-colors hover:bg-[var(--color-senal)]"
+        >
+          Buscar
+        </button>
+      </div>
+
+      <fieldset class="mt-5">
+        <legend class="meta text-xs tracking-[0.14em] text-[var(--color-apunte)] uppercase">
+          Filtrar por tema
+        </legend>
+        <div class="meta mt-3 flex flex-wrap gap-2 text-sm">
+          <label class="cursor-pointer border border-[var(--color-linea)] px-3 py-1.5 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--color-senal)] has-checked:border-[var(--color-senal)] has-checked:text-[var(--color-senal)]">
+            <input type="radio" name="seccion" value="" class="sr-only" checked />
+            Todos
+          </label>
+          {
+            SECCIONES.map((s) => (
+              <label class="cursor-pointer border border-[var(--color-linea)] px-3 py-1.5 focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[var(--color-senal)] has-checked:border-[var(--color-senal)] has-checked:text-[var(--color-senal)]">
+                <input type="radio" name="seccion" value={s.id} class="sr-only" />
+                {s.titulo}
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+    </form>
+
+    <p id="aviso" class="meta mt-10 text-sm text-[var(--color-apunte)]">
+      Escribe algo para empezar.
+    </p>
+
+    <noscript>
+      <p class="mt-6 max-w-[62ch] leading-relaxed text-[var(--color-apunte)]">
+        El buscador necesita JavaScript porque filtra en tu navegador. Sin él puedes recorrer el
+        <a href="/archivo" class="text-[var(--color-senal)] underline underline-offset-4">archivo</a>
+        o los
+        <a href="/temas" class="text-[var(--color-senal)] underline underline-offset-4">temas</a>.
+      </p>
+    </noscript>
+
+    <ul id="resultados" class="mt-4"></ul>
+  </div>
+</Base>
+
+<script>
+  const MAXIMO = 60;
+
+  const campo = document.getElementById('q') as HTMLInputElement | null;
+  const lista = document.getElementById('resultados') as HTMLUListElement | null;
+  const aviso = document.getElementById('aviso') as HTMLParagraphElement | null;
+  const formulario = document.getElementById('formulario') as HTMLFormElement | null;
+  if (!campo || !lista || !aviso || !formulario) throw new Error('Falta el formulario');
+
+  type Noticia = {
+    titulo: string;
+    resumen: string;
+    fuente: string;
+    seccion: string;
+    url: string;
+    semana: string;
+    fecha: string;
+  };
+
+  const sinAcentos = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const normalizar = (s: string) => sinAcentos(s).toLowerCase();
+
+  let indice: Noticia[] | null = null;
+  let cargando: Promise<Noticia[]> | null = null;
+
+  /** El indice se pide una sola vez, y solo cuando el lector escribe algo. */
+  function obtenerIndice(): Promise<Noticia[]> {
+    if (indice) return Promise.resolve(indice);
+    cargando ??= fetch('/indice-busqueda.json')
+      .then((r) => {
+        if (!r.ok) throw new Error(`El índice respondió ${r.status}`);
+        return r.json();
+      })
+      .then((datos) => {
+        indice = datos.noticias as Noticia[];
+        return indice;
+      });
+    return cargando;
+  }
+
+  function seccionElegida(): string {
+    const marcado = formulario!.querySelector<HTMLInputElement>('input[name="seccion"]:checked');
+    return marcado?.value ?? '';
+  }
+
+  function pintar(resultados: Noticia[], consulta: string) {
+    lista!.replaceChildren();
+
+    if (resultados.length === 0) {
+      aviso!.textContent = `Sin resultados para "${consulta}".`;
+      return;
+    }
+
+    const cuantos = Math.min(resultados.length, MAXIMO);
+    aviso!.textContent =
+      resultados.length > MAXIMO
+        ? `${resultados.length} resultados. Se muestran los ${cuantos} más recientes.`
+        : `${resultados.length} ${resultados.length === 1 ? 'resultado' : 'resultados'}.`;
+
+    for (const n of resultados.slice(0, MAXIMO)) {
+      const li = document.createElement('li');
+      li.className = 'grupo-titular border-t border-[var(--color-linea)] py-6';
+
+      const meta = document.createElement('p');
+      meta.className = 'meta flex flex-wrap items-center gap-x-2.5 text-xs text-[var(--color-apunte)]';
+      const fuente = document.createElement('span');
+      fuente.className = 'text-[var(--color-tinta)]';
+      fuente.textContent = n.fuente;
+      const fecha = document.createElement('time');
+      fecha.dateTime = n.fecha;
+      fecha.textContent = n.fecha.split('-').reverse().slice(0, 2).join('/');
+      meta.append(fuente, fecha);
+
+      const titulo = document.createElement('h2');
+      titulo.className = 'mt-2 text-lg leading-snug font-medium';
+      const enlace = document.createElement('a');
+      enlace.href = n.url;
+      enlace.rel = 'noopener noreferrer external';
+      enlace.target = '_blank';
+      enlace.className = 'enlace-titular no-underline';
+      enlace.textContent = n.titulo;
+      titulo.append(enlace);
+
+      const resumen = document.createElement('p');
+      resumen.className = 'mt-2 leading-relaxed text-[var(--color-apunte)]';
+      resumen.textContent = n.resumen;
+
+      const edicion = document.createElement('a');
+      edicion.href = `/ediciones/${n.semana}`;
+      edicion.className =
+        'meta mt-2 inline-block text-xs text-[var(--color-senal)] underline-offset-4 hover:underline';
+      edicion.textContent = `Ver la edición ${n.semana.split('-W')[1]}`;
+
+      li.append(meta, titulo, resumen, edicion);
+      lista!.append(li);
+    }
+  }
+
+  async function buscar() {
+    const consulta = campo!.value.trim();
+    const seccion = seccionElegida();
+
+    if (consulta.length < 2 && !seccion) {
+      lista!.replaceChildren();
+      aviso!.textContent = 'Escribe algo para empezar.';
+      return;
+    }
+
+    aviso!.textContent = 'Buscando...';
+    let datos: Noticia[];
+    try {
+      datos = await obtenerIndice();
+    } catch {
+      aviso!.textContent = 'No se ha podido cargar el índice. Vuelve a intentarlo.';
+      return;
+    }
+
+    const terminos = normalizar(consulta).split(/\s+/).filter(Boolean);
+    const resultados = datos.filter((n) => {
+      if (seccion && n.seccion !== seccion) return false;
+      if (terminos.length === 0) return true;
+      const texto = normalizar(`${n.titulo} ${n.resumen} ${n.fuente} ${n.seccion}`);
+      return terminos.every((t) => texto.includes(t));
+    });
+
+    pintar(resultados, consulta);
+  }
+
+  let temporizador: number | undefined;
+  campo.addEventListener('input', () => {
+    window.clearTimeout(temporizador);
+    temporizador = window.setTimeout(buscar, 160);
+  });
+
+  formulario.addEventListener('change', buscar);
+  formulario.addEventListener('submit', (e) => {
+    e.preventDefault();
+    buscar();
+  });
+
+  // Permite enlazar una busqueda: /buscar?q=agentes
+  const inicial = new URLSearchParams(location.search).get('q');
+  if (inicial) {
+    campo.value = inicial;
+    buscar();
+  }
+</script>

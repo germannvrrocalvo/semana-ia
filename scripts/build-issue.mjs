@@ -90,7 +90,16 @@ const ESQUEMA = {
             description:
               'El titular traducido al español, máximo 95 caracteres. Fiel al original: no añadas datos que el titular no diga ni lo conviertas en clickbait. Los nombres de empresas, productos y modelos se dejan en su idioma original (Gemini 3.5 Transcribe, ChatGPT Work, Granite 4.2). Sin punto final.',
           },
-          resumen: { type: 'string', description: 'Dos o tres frases en español explicando la noticia y por qué importa. Sin adjetivos publicitarios.' },
+          resumen: {
+            type: 'string',
+            description:
+              'Qué ha pasado, en dos o tres frases y en español. Solo el hecho: nada de valoraciones ni de adjetivos publicitarios.',
+          },
+          porQueImporta: {
+            type: 'string',
+            description:
+              'Una sola frase, máximo 180 caracteres, con la consecuencia o el contexto que hace que la noticia importe: a quién afecta, qué cambia, con qué enlaza. Omite este campo cuando la noticia no tenga más lectura que el hecho en sí; es mejor no decir nada que rellenar.',
+          },
         },
         required: ['url', 'titular', 'resumen'],
         additionalProperties: false,
@@ -110,7 +119,7 @@ Reglas de estilo:
 - No inventes datos, cifras ni declaraciones que no estén en el material que recibes. Si un titular es ambiguo, descríbelo con cautela en vez de rellenar huecos.
 - Toda cifra de dinero lleva su moneda explícita ("10 millones de dólares", no "10 millones"). El lector es español y da por hecho que son euros si no se le dice lo contrario. Lo mismo con cualquier unidad que se preste a confusión.
 - Si una noticia es un anuncio comercial disfrazado de noticia, dilo.
-- Cada resumen debe explicar qué ha pasado y por qué importa, no repetir el titular con otras palabras.
+- El resumen cuenta qué ha pasado y no repite el titular con otras palabras. La lectura de por qué importa va aparte, en porQueImporta, y solo cuando de verdad haya algo que añadir: la mitad de las noticias de una semana no lo tienen, y forzarlo se nota. Nunca lo uses para especular sobre el futuro.
 - Traduce todos los titulares al español. La mayoría del material llega en inglés y el lector no tiene por qué saberlo. Traduce el sentido, no palabra por palabra: los titulares en inglés abusan de juegos de palabras que en español no funcionan. Sé fiel: un titular traducido no puede afirmar más de lo que afirma el original.
 
 Devuelve una entrada por cada noticia recibida, con su URL exacta.`;
@@ -168,6 +177,7 @@ function componerMarkdown(datos, redaccion) {
   const entradas = datos.noticias.map((n) => {
     const redactada = porUrl.get(n.url);
     const resumen = redactada?.resumen ?? n.extracto ?? '';
+    const porQueImporta = redactada?.porQueImporta?.trim();
     // El titular en español es el que se lee; el original se conserva porque es
     // el que aparece al otro lado del enlace y hace falta para poder cotejarlo.
     const titular = redactada?.titular ?? n.titulo;
@@ -179,6 +189,7 @@ function componerMarkdown(datos, redaccion) {
       '    fecha: ' + n.fecha,
       '    seccion: ' + yaml(n.seccion),
       '    resumen: ' + yaml(resumen),
+      porQueImporta ? '    porQueImporta: ' + yaml(porQueImporta) : null,
       n.tambienEn.length ? '    tambienEn: [' + n.tambienEn.map(yaml).join(', ') + ']' : null,
     ]
       .filter(Boolean)

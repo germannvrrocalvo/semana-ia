@@ -44,6 +44,13 @@ const ediciones = defineCollection({
           fecha: z.coerce.date(),
           seccion: z.string(),
           resumen: z.string().default(''),
+          /**
+           * La lectura de la noticia: a quien afecta o que cambia. Opcional a
+           * proposito, en dos sentidos: las ediciones publicadas antes de que
+           * existiera el campo siguen validando, y el redactor lo omite cuando la
+           * noticia no da para mas que el hecho.
+           */
+          porQueImporta: z.string().optional(),
           /** Otros medios que cubrieron la misma historia. */
           tambienEn: z.array(z.string()).default([]),
         }),

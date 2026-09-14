@@ -1,7 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
-import { fechaLarga } from '../lib/secciones';
+import Migas from '../components/Migas.astro';
+import { fechaLarga, tituloSeccion } from '../lib/secciones';
 
 const ediciones = (await getCollection('ediciones')).sort(
   (a, b) => b.data.fecha.valueOf() - a.data.fecha.valueOf(),
@@ -17,19 +18,26 @@ const porAno = [
 ].sort((a, b) => b[0] - a[0]);
 
 const totalNoticias = ediciones.reduce((n, e) => n + e.data.entradas.length, 0);
+const medios = new Set(ediciones.flatMap((e) => e.data.entradas.map((x) => x.fuente))).size;
+
+const migas = [{ nombre: 'Inicio', href: '/' }, { nombre: 'Archivo' }];
 ---
 
 <Base
   titulo="Archivo"
   descripcion="Todas las ediciones semanales de Semana IA, de la más reciente a la primera."
+  migas={migas}
 >
-  <div class="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
-    <header class="border-b-2 border-[var(--color-tinta)] pb-10">
+  <div class="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+    <Migas migas={migas} />
+
+    <header class="mt-10 border-b-2 border-[var(--color-tinta)] pb-10">
       <h1 class="titular-portada">El archivo completo</h1>
       <p class="meta mt-6 text-sm text-[var(--color-apunte)]">
         {ediciones.length}
-        {ediciones.length === 1 ? 'edición publicada' : 'ediciones publicadas'}, con {totalNoticias}
-        noticias recopiladas en total.
+        {ediciones.length === 1 ? 'edición publicada' : 'ediciones publicadas'}, {totalNoticias}
+        noticias recopiladas y {medios}
+        {medios === 1 ? 'medio citado' : 'medios citados'}.
       </p>
     </header>
 
@@ -38,24 +46,45 @@ const totalNoticias = ediciones.reduce((n, e) => n + e.data.entradas.length, 0);
         <section class="entra mt-14">
           <h2 class="filete-seccion meta text-sm tracking-[0.14em] uppercase">{ano}</h2>
 
-          <ul class="mt-6">
+          {/*
+            Cada edicion es una ficha: numero, fecha, titular de la semana, sus
+            ejes y cuanto trae dentro. Con el listado anterior (fecha y titular en
+            una linea) no habia forma de decidir cual abrir.
+          */}
+          <ul class="mt-8 grid gap-6 md:grid-cols-2">
             {lista.map((e) => (
-              <li class="grupo-titular border-t border-[var(--color-linea)]">
+              <li class="grupo-titular">
                 <a
                   href={`/ediciones/${e.data.semana}`}
-                  class="grid gap-x-10 gap-y-2 py-7 no-underline md:grid-cols-[10rem_1fr]"
+                  class="flex h-full flex-col border border-[var(--color-linea)] p-7 no-underline transition-colors hover:border-[var(--color-tinta)]"
                 >
-                  <span class="meta text-sm text-[var(--color-apunte)]">
-                    {fechaLarga(e.data.fecha)}
-                  </span>
-                  <span>
-                    <span class="enlace-titular text-xl leading-snug font-medium sm:text-2xl">
-                      {e.data.destacado}
+                  <div class="meta flex items-baseline justify-between gap-4 text-xs">
+                    <span class="tracking-[0.14em] text-[var(--color-senal)] uppercase">
+                      Edición {e.data.semana.split('-W')[1]}
                     </span>
-                    <span class="meta mt-2 block text-xs text-[var(--color-apunte)]">
+                    <span class="text-[var(--color-apunte)]">{fechaLarga(e.data.fecha)}</span>
+                  </div>
+
+                  <p class="enlace-titular mt-5 text-xl leading-snug font-medium sm:text-2xl">
+                    {e.data.destacado}
+                  </p>
+
+                  {e.data.temas.length > 0 && (
+                    <ul class="meta mt-5 flex flex-wrap gap-2 text-xs text-[var(--color-apunte)]">
+                      {e.data.temas.slice(0, 4).map((tema) => (
+                        <li class="border border-[var(--color-linea)] px-2 py-0.5">
+                          {tituloSeccion(tema)}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <div class="meta mt-auto flex items-baseline justify-between gap-4 pt-7 text-xs">
+                    <span class="text-[var(--color-apunte)]">
                       {e.data.entradas.length} noticias
                     </span>
-                  </span>
+                    <span class="text-[var(--color-senal)]">Leer la edición</span>
+                  </div>
                 </a>
               </li>
             ))}

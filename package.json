@@ -11,7 +11,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "noticias": "node scripts/fetch-news.mjs",
-    "edicion": "node scripts/build-issue.mjs"
+    "edicion": "node scripts/build-issue.mjs",
+    "probar": "node scripts/probar-filtros.mjs",
+    "og": "node scripts/generar-og.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.120.0",
