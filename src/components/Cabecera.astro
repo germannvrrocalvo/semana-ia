@@ -84,14 +84,20 @@ const activo = (href: string) =>
 <script>
   const boton = document.getElementById('cambiar-tema');
   const etiqueta = boton?.querySelector('[data-etiqueta-tema]');
+  const meta = document.querySelector('meta[name="theme-color"]');
+
+  // Sin atributo el tema es el oscuro: es el que trae el CSS por defecto.
+  const actual = () => (document.documentElement.dataset.tema === 'claro' ? 'claro' : 'oscuro');
 
   const pintar = () => {
-    if (etiqueta) etiqueta.textContent = document.documentElement.dataset.tema ?? 'claro';
+    if (etiqueta) etiqueta.textContent = actual();
+    meta?.setAttribute('content', actual() === 'claro' ? '#fbfbfa' : '#0e0f11');
   };
 
   boton?.addEventListener('click', () => {
-    const nuevo = document.documentElement.dataset.tema === 'oscuro' ? 'claro' : 'oscuro';
-    document.documentElement.dataset.tema = nuevo;
+    const nuevo = actual() === 'oscuro' ? 'claro' : 'oscuro';
+    if (nuevo === 'claro') document.documentElement.dataset.tema = 'claro';
+    else delete document.documentElement.dataset.tema;
     try {
       localStorage.setItem('tema', nuevo);
     } catch {

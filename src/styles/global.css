@@ -8,53 +8,48 @@
 /*
   Semana IA - sistema de diseno.
 
-  Un periodico: papel, tinta y una sola tinta de color para senalar. El acento
-  (rojo bermellon) marca la semana, los enlaces y las cabeceras de seccion; nunca
-  se usa como fondo de bloques grandes.
+  El sitio es oscuro por decision, no por preferencia del sistema: el fondo es un
+  gris muy profundo y ligeramente frio, no negro puro, para que el texto no vibre
+  y para que los filetes puedan existir. El tema claro sigue completo y se elige
+  desde la cabecera, pero el oscuro es la version en la que se ha disenado.
 
-  Radio de esquina: 0 en todo el sitio. Es una decision, no un olvido. Las esquinas
-  vivas son lo que separa una publicacion de una plantilla de SaaS.
+  Una sola tinta de color, un bermellon vivo, y se gasta poco: numero de edicion,
+  cabeceras de seccion, enlaces al pasar por encima y la lectura de "por que
+  importa". Nada de degradados, ni resplandores, ni sombras grandes.
 
-  Las reglas (filetes) hacen el trabajo que en otros sitios hacen las tarjetas:
-  separan sin encerrar. Por eso casi no hay cajas con fondo propio.
+  Radio de esquina: 0 en todo el sitio. Los filetes hacen el trabajo que en otros
+  sitios hacen las tarjetas: separan sin encerrar.
 */
 @theme {
   --font-serif: 'Newsreader Variable', ui-serif, Georgia, 'Times New Roman', serif;
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  --color-papel: #faf9f6;
-  --color-panel: #f1efe8;
-  --color-tinta: #14130f;
-  --color-apunte: #56534a;
-  --color-linea: #d8d4c7;
-  --color-senal: #b03418;
+  /* Los nombres siguen siendo de imprenta aunque el fondo ya no sea papel: son los
+     mismos seis papeles de siempre y cambiarlos obligaria a tocar cada plantilla. */
+  --color-papel: #0e0f11;
+  --color-panel: #16181b;
+  --color-tinta: #f2f1ee;
+  --color-apunte: #9b9ea6;
+  --color-linea: #262a30;
+  --color-senal: #ff5436;
 
   --radius-none: 0;
 }
 
-/* El tema oscuro redefine los mismos tokens: ningun componente sabe en que modo esta. */
-@custom-variant dark (&:where([data-tema='oscuro'], [data-tema='oscuro'] *));
+/* Queda para quien necesite una regla suelta; el sistema entero va por tokens. */
+@custom-variant claro (&:where([data-tema='claro'], [data-tema='claro'] *));
 
-[data-tema='oscuro'] {
-  --color-papel: #121210;
-  --color-panel: #1c1b17;
-  --color-tinta: #ece9e0;
-  --color-apunte: #9b978b;
-  --color-linea: #302e27;
-  --color-senal: #e0644a;
-}
-
-/* Sin JavaScript no hay atributo data-tema, asi que el modo oscuro del sistema
-   se respeta igualmente. El selector cede ante una eleccion explicita de tema claro. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-tema='claro']) {
-    --color-papel: #121210;
-    --color-panel: #1c1b17;
-    --color-tinta: #ece9e0;
-    --color-apunte: #9b978b;
-    --color-linea: #302e27;
-    --color-senal: #e0644a;
-  }
+/*
+  Tema claro. No es una inversion automatica: el bermellon se oscurece, porque el
+  #ff5436 sobre blanco se queda en 2,6:1 y no pasa el contraste minimo.
+*/
+[data-tema='claro'] {
+  --color-papel: #fbfbfa;
+  --color-panel: #f2f2f0;
+  --color-tinta: #111214;
+  --color-apunte: #5c6069;
+  --color-linea: #dfe0e2;
+  --color-senal: #d93a1c;
 }
 
 @layer base {
@@ -62,6 +57,12 @@
     scroll-behavior: smooth;
     /* Evita el salto horizontal cuando aparece la barra de scroll entre paginas. */
     scrollbar-gutter: stable;
+    /* Barras de scroll y controles de formulario en el tono del tema. */
+    color-scheme: dark;
+  }
+
+  html[data-tema='claro'] {
+    color-scheme: light;
   }
 
   body {
@@ -85,7 +86,7 @@
 
   ::selection {
     background-color: var(--color-senal);
-    color: var(--color-papel);
+    color: #0e0f11;
   }
 
   :focus-visible {
@@ -123,51 +124,83 @@
 
 @layer components {
   /*
+    Entrada de la portada. Lo de arriba de la pagina no puede aparecer con el
+    scroll, porque ya esta en pantalla cuando se carga: sube en cascada, una vez,
+    y se queda. El retraso va por variable para no escribir cinco reglas.
+  */
+  @media (prefers-reduced-motion: no-preference) {
+    .asoma {
+      animation: asomar 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: calc(var(--turno, 0) * 90ms);
+    }
+  }
+
+  @keyframes asomar {
+    from {
+      opacity: 0;
+      transform: translateY(1.25rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /*
     El titular de portada lo escribe el robot, asi que puede traer seis palabras o
     veinticinco. El tamano se elige por longitud del texto, no solo por ancho de
     pantalla: con un solo clamp, los titulares largos se comian la primera pantalla
     en seis lineas y los cortos se quedaban pequenos.
+
+    El peso baja a 400 porque a estos cuerpos la Newsreader aguanta de sobra y el
+    semibold a 90px se vuelve un cartel.
   */
   .titular-portada {
-    line-height: 1.03;
-    letter-spacing: -0.022em;
-    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    font-weight: 400;
     text-wrap: balance;
-    font-size: clamp(2.25rem, 4vw, 3.25rem);
+    font-size: clamp(2.5rem, 6vw, 4.75rem);
+    max-width: 30ch;
   }
 
   .titular-portada--corto {
-    font-size: clamp(2.75rem, 5.4vw, 4.5rem);
-    letter-spacing: -0.03em;
+    font-size: clamp(3.25rem, 8.5vw, 7rem);
+    letter-spacing: -0.04em;
+    max-width: 19ch;
   }
 
   .titular-portada--largo {
-    font-size: clamp(1.9rem, 3vw, 2.6rem);
+    font-size: clamp(1.9rem, 3.4vw, 2.9rem);
     line-height: 1.1;
-    letter-spacing: -0.016em;
+    letter-spacing: -0.02em;
+    max-width: 40ch;
   }
 
   .titular-seccion {
     font-size: clamp(1.5rem, 2.6vw, 2rem);
-    line-height: 1.1;
-    letter-spacing: -0.018em;
-    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    font-weight: 400;
   }
 
-  /*
-    Cabecera de seccion de periodico: nombre en versalitas sobre un filete grueso.
-    Sustituye a la etiqueta minuscula en mayusculas que llevaba antes cada bloque,
-    que hacia que todas las secciones se leyeran iguales.
-  */
+  /* Cabecera de seccion: nombre en versalitas sobre un filete que la separa de lo
+     anterior. En oscuro el filete grueso en tinta seria una barra blanca, asi que
+     lo marca el acento. */
   .filete-seccion {
-    border-top: 2px solid var(--color-tinta);
+    border-top: 2px solid var(--color-senal);
     padding-top: 0.6rem;
+  }
+
+  /* La banda tecnica de datos de la edicion: celdas con filete en medio. */
+  .banda-datos {
+    border-block: 1px solid var(--color-linea);
   }
 
   /*
     Enlace de titular. El subrayado crece desde la izquierda al pasar por encima,
-    en lugar de aparecer de golpe: se lee como una linea trazada a mano sobre el
-    papel. Se apoya en background-size, que no provoca reflow.
+    en lugar de aparecer de golpe: se lee como una linea trazada sobre el texto.
+    Se apoya en background-size, que no provoca reflow.
   */
   .enlace-titular {
     background-image: linear-gradient(var(--color-senal), var(--color-senal));
@@ -192,9 +225,9 @@
   }
 
   /*
-    Las marcas de los medios se pintan en tinta, no en su color corporativo: un
-    muro de logos multicolor romperia la paleta de una sola tinta. Al pasar por
-    encima recuperan su color de marca, que es cuando el color aporta algo.
+    Las marcas de los medios se pintan en el gris secundario, no en su color
+    corporativo: un muro de logos multicolor romperia la paleta de una sola tinta.
+    Al pasar por encima recuperan su color de marca, que es cuando aporta algo.
   */
   .marca-medio {
     color: var(--color-apunte);

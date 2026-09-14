@@ -4,11 +4,12 @@
 import sharp from 'sharp';
 import { writeFile } from 'node:fs/promises';
 
-const PAPEL = '#faf9f6';
-const TINTA = '#14130f';
-const SENAL = '#b03418';
-const APUNTE = '#56534a';
-const LINEA = '#d8d4c7';
+// Los mismos tokens que el sitio, en su tema por defecto: el oscuro.
+const PAPEL = '#0e0f11';
+const TINTA = '#f2f1ee';
+const SENAL = '#ff5436';
+const APUNTE = '#9b9ea6';
+const LINEA = '#262a30';
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <rect width="1200" height="630" fill="${PAPEL}"/>

@@ -11,6 +11,12 @@ const ediciones = defineCollection({
     /** Identificador ISO de la semana, p. ej. "2026-W35". Es tambien el slug. */
     semana: z.string().regex(/^\d{4}-W\d{2}$/, 'Formato esperado: 2026-W35'),
     titulo: z.string(),
+    /**
+     * Titular de portada, corto, para poder ponerlo a cuerpo de cartel. Opcional
+     * porque las ediciones anteriores al campo no lo tienen y siguen validando:
+     * en esas, la portada cae en destacado, que es una frase entera.
+     */
+    titularCorto: z.string().max(90).optional(),
     fecha: z.coerce.date(),
     /** Una frase con lo mas importante de la semana. Se usa como entradilla y en los metadatos. */
     destacado: z.string(),

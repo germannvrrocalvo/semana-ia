@@ -133,18 +133,20 @@ const datosEstructurados = {
       set:html={JSON.stringify(datosEstructurados)}
     />
 
+    <meta name="theme-color" content="#0e0f11" />
+
     <script is:inline>
-      // Se ejecuta antes de pintar para que no haya un fogonazo blanco al cargar
-      // con el tema oscuro activo.
+      // El sitio es oscuro por defecto, asi que el CSS ya trae el tema oscuro en
+      // :root y aqui solo hay que marcar la excepcion. Se ejecuta antes de pintar
+      // para que quien haya elegido el tema claro no vea un fogonazo oscuro.
       (() => {
         try {
-          const guardado = localStorage.getItem('tema');
-          const oscuro = guardado
-            ? guardado === 'oscuro'
-            : matchMedia('(prefers-color-scheme: dark)').matches;
-          document.documentElement.dataset.tema = oscuro ? 'oscuro' : 'claro';
+          if (localStorage.getItem('tema') === 'claro') {
+            document.documentElement.dataset.tema = 'claro';
+            document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#fbfbfa');
+          }
         } catch {
-          /* Modo privado sin acceso a localStorage: se queda con el tema por defecto. */
+          /* Modo privado sin acceso a localStorage: se queda con el tema oscuro. */
         }
       })();
     </script>

@@ -70,6 +70,11 @@ const ESQUEMA = {
       type: 'string',
       description: 'Una sola frase, máximo 140 caracteres, que resuma lo más importante de la semana. Sin comillas ni punto final.',
     },
+    titularCorto: {
+      type: 'string',
+      description:
+        'El titular de portada: maximo 70 caracteres, sin punto final. Es la version de cartel de lo mas importante de la semana, no un resumen. Nombra el hecho y su protagonista y nada mas ("Nvidia compra Hugging Face"). Si no cabe en 70 caracteres, es que estan entrando dos noticias.',
+    },
     apertura: {
       type: 'string',
       description: 'Dos o tres frases de contexto sobre la semana, en Markdown plano. Explica por qué importa lo que ha pasado, sin repetir literalmente el campo destacado.',
@@ -106,7 +111,7 @@ const ESQUEMA = {
       },
     },
   },
-  required: ['destacado', 'apertura', 'etiquetas', 'entradas'],
+  required: ['destacado', 'titularCorto', 'apertura', 'etiquetas', 'entradas'],
   additionalProperties: false,
 };
 
@@ -213,6 +218,7 @@ function componerMarkdown(datos, redaccion) {
     'titulo: ' + yaml(`Semana del ${rangoLegible(rango)}`),
     'fecha: ' + rango.domingo.toISOString().slice(0, 10),
     'destacado: ' + yaml(destacado),
+    conIA && redaccion.titularCorto ? 'titularCorto: ' + yaml(redaccion.titularCorto) : null,
     'temas: [' + temas.map(yaml).join(', ') + ']',
     ...(etiquetas.length ? ['etiquetas: [' + etiquetas.map(yaml).join(', ') + ']'] : []),
     'generadoPor: ' + yaml(conIA ? 'claude' : 'sin-ia'),
