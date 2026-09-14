@@ -4,17 +4,28 @@ name: Edición semanal
 # y publica la edición directamente en main. El filtro es `npm run build`: si el
 # esquema rechaza la edición, el trabajo falla y no se publica nada.
 #
-# Cuatro horarios el mismo lunes, no uno. GitHub descarta los disparos por cron
-# cuando hay carga, y aquí se notó: de los tres primeros lunes solo llegó uno, y
-# con siete horas de retraso. Con cuatro intentos basta con que entre cualquiera.
-# El primero que encuentra la edición sin publicar la publica; los siguientes ven
+# Cuatro horarios el mismo lunes, no uno. GitHub descarta disparos por cron
+# cuando hay carga, y los que entrega llegan tarde: las dos ejecuciones que han
+# llegado hasta ahora estaban puestas a las 06:00 y a las 06:23, y aterrizaron a
+# las 13:14 y a las 13:02. Con cuatro intentos basta con que entre cualquiera; el
+# primero que encuentra la edición sin publicar la publica y los siguientes ven
 # que ya está y terminan sin hacer nada.
+#
+# El primero se pone a las 00:05 para que la edición salga por la mañana en
+# España. Con el retraso observado, aterrizaría sobre las 07:00 UTC. Si resulta
+# que GitHub no acumula un retraso fijo sino que reparte los disparos a una hora
+# concreta del día, seguirá saliendo a mediodía y habrá que buscarlo por otra
+# vía; lo dirá la primera ejecución con este horario.
+#
+# De paso, arrancar a las 00:05 del lunes encaja mejor con la semana que se
+# publica: la ventana de siete días cubre el lunes anterior al domingo y ya no se
+# cuela en la edición lo publicado el propio lunes por la mañana.
 on:
   schedule:
+    - cron: '5 0 * * 1'
+    - cron: '5 2 * * 1'
     - cron: '23 6 * * 1'
-    - cron: '23 9 * * 1'
     - cron: '23 13 * * 1'
-    - cron: '23 17 * * 1'
   workflow_dispatch:
     inputs:
       dias:
