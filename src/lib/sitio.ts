@@ -11,7 +11,7 @@
 */
 export const SITIO = {
   nombre: 'Semana IA',
-  url: 'https://semana-ia.vercel.app',
+  url: 'https://campus-i-a.com',
   descripcion:
     'Boletín semanal en español sobre inteligencia artificial. Cada lunes, lo que ha pasado durante los siete días anteriores.',
 

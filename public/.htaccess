@@ -16,6 +16,24 @@ DirectoryIndex index.html
 # perder lo que ya estuviera enlazado o indexado.
 RedirectMatch 301 ^/acerca-de/?$ /metodo/
 
+# Herencia de Campus IA, que ocupaba este dominio antes. Sus direcciones estaban
+# indexadas, asi que se mandan a lo mas parecido que hay ahora en lugar de
+# dejarlas en 404. Las paginas de contenido no tienen equivalente y van a la
+# portada, que es lo correcto cuando no hay destino mejor.
+Redirect 301 /privacidad.html /privacidad/
+Redirect 301 /cookies.html /cookies/
+Redirect 301 /aviso-legal.html /aviso-legal/
+Redirect 301 /condiciones.html /aviso-legal/
+Redirect 301 /contacto.html /contacto/
+Redirect 301 /quienes-somos.html /metodo/
+Redirect 301 /sobre-nosotros.html /metodo/
+Redirect 301 /foro.html /
+Redirect 301 /mejores-ias-2026.html /
+Redirect 301 /noticia-ia-espana.html /
+Redirect 301 /soberania-digital.html /
+# (?i) porque una de ellas se subio como .HTML en mayusculas.
+RedirectMatch 301 (?i)^/ia-[a-z]+\.html$ /
+
 # Astro genera esta pagina en la raiz.
 ErrorDocument 404 /404.html
 
