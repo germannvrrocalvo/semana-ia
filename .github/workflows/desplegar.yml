@@ -22,6 +22,9 @@ concurrency:
 jobs:
   subir:
     runs-on: ubuntu-latest
+    # Compilar y subir 40 archivos no pasa de dos minutos. Si llega a diez, algo
+    # esta esperando a algo que no va a llegar.
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v7
@@ -68,12 +71,26 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq lftp
 
+          echo "Protocolo: $PROTOCOLO | servidor: $SERVIDOR | carpeta: $RUTA"
+
+          # lftp reintenta la conexion para siempre por defecto, asi que un host o
+          # un protocolo equivocados no dan error: se quedan esperando. Con esto
+          # falla en medio minuto y el log dice por que.
+          LIMITES="
+            set net:timeout 15;
+            set net:max-retries 2;
+            set net:reconnect-interval-base 5;
+            set dns:fatal-timeout 10;
+          "
+
           if [ "$PROTOCOLO" = "sftp" ]; then
             DESTINO="sftp://$SERVIDOR"
             AJUSTES="set sftp:auto-confirm true;"
           else
-            DESTINO="$SERVIDOR"
-            AJUSTES="set ftp:ssl-force true; set ftp:ssl-protect-data true; set ssl:verify-certificate no;"
+            DESTINO="ftp://$SERVIDOR"
+            # IONOS exige modo pasivo y cifrado; su certificado no siempre valida
+            # con el nombre del host, y ahi no se esta autenticando a nadie.
+            AJUSTES="set ftp:passive-mode true; set ftp:ssl-force true; set ftp:ssl-protect-data true; set ssl:verify-certificate no;"
           fi
 
           # mirror -R sube; --delete borra en el servidor lo que ya no existe en
@@ -81,9 +98,10 @@ jobs:
           # de versiones anteriores del sitio.
           lftp -c "
             set cmd:fail-exit true;
+            $LIMITES
             $AJUSTES
             open -u '$USUARIO','$CLAVE' $DESTINO;
-            mirror -R --delete --parallel=4 --verbose=1 dist/ '$RUTA';
+            mirror -R --delete --parallel=2 --verbose=1 dist/ '$RUTA';
           "
 
       - name: Resumen
