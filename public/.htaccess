@@ -69,10 +69,10 @@ ErrorDocument 404 /404.html
   AddCharset UTF-8 .html .css .js .json .xml .txt
 </IfModule>
 
-# HTTPS obligatorio. DESCOMENTAR SOLO CUANDO EL CERTIFICADO ESTE ACTIVO en el
-# panel de IONOS: si se fuerza antes, el sitio queda inaccesible.
-#<IfModule mod_rewrite.c>
-#  RewriteEngine On
-#  RewriteCond %{HTTPS} !=on
-#  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-#</IfModule>
+# HTTPS obligatorio. El certificado esta asignado y verificado, asi que quien
+# entre por http acaba en https con una redireccion permanente.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>
