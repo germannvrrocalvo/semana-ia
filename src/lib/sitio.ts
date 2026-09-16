@@ -24,6 +24,14 @@ export const SITIO = {
   /** Ano de la primera edicion, para el aviso de derechos del pie. */
   desde: 2026,
 
+  /**
+   * Identificador de editor de AdSense. No es un secreto: es publico por
+   * definicion, porque va escrito en ads.txt. Tenerlo aqui solo autoriza la
+   * venta de anuncios; no los carga. Eso lo sigue decidiendo la variable
+   * PUBLIC_ADSENSE_CLIENT en el despliegue.
+   */
+  editorAdsense: 'pub-4541077370128428',
+
   /** El repositorio es publico y es parte de la explicacion de como se hace. */
   repositorio: 'https://github.com/germannvrrocalvo/semana-ia',
 } as const;

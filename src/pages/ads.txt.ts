@@ -2,21 +2,22 @@ import { SITIO } from '../lib/sitio';
 
 /*
   ads.txt declara quien esta autorizado a vender el inventario publicitario de este
-  dominio. Google lo comprueba y, si falta, marca el sitio en el panel de AdSense.
+  dominio. Google lo comprueba al revisar el sitio, y sirve tambien para verificar
+  que el dominio es de quien solicita AdSense.
 
-  Se genera a partir de la misma variable de entorno que carga el script de
-  anuncios, asi no hay dos sitios donde meter el identificador y desincronizarlos.
-  Mientras no exista la variable, el archivo se sirve vacio de autorizaciones, que
-  es lo correcto: no hay nadie autorizado todavia.
+  Va separado de la carga de anuncios a proposito. Autorizar a Google a vender
+  espacio no pone ningun anuncio en la pagina: eso solo ocurre cuando existe
+  PUBLIC_ADSENSE_CLIENT en el despliegue. Asi se puede solicitar la revision con
+  ads.txt en su sitio y el sitio todavia limpio de scripts de terceros.
+
+  Si algun dia la variable apunta a otra cuenta, manda la variable.
 */
 export function GET() {
-  const cliente = import.meta.env.PUBLIC_ADSENSE_CLIENT?.trim();
-  const editor = cliente?.replace(/^ca-/, '');
+  const desdeVariable = import.meta.env.PUBLIC_ADSENSE_CLIENT?.trim().replace(/^ca-/, '');
+  const editor = desdeVariable || SITIO.editorAdsense;
 
-  const cuerpo = editor
-    ? `google.com, ${editor}, DIRECT, f08c47fec0942fa0\n`
-    : `# ${SITIO.nombre}: sin autorizaciones de venta publicitaria.\n` +
-      `# Define PUBLIC_ADSENSE_CLIENT (ca-pub-...) y este archivo se rellena solo.\n`;
+  const cuerpo = `google.com, ${editor}, DIRECT, f08c47fec0942fa0
+`;
 
   return new Response(cuerpo, {
     headers: { 'Content-Type': 'text/plain; charset=utf-8' },
