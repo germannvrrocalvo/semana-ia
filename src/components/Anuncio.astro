@@ -2,10 +2,9 @@
 /*
   Hueco publicitario.
 
-  Mientras no existan las variables de entorno, este componente no pinta nada:
+  Mientras la publicidad no este habilitada, este componente no pinta nada:
   ni una caja vacia, ni un borde, ni un "espacio reservado para publicidad". Es
-  lo que permite pedir la revision de AdSense con el sitio limpio y encender los
-  anuncios despues sin volver a tocar las plantillas.
+  lo que permite pedir la revision de AdSense con el sitio sin anuncios.
 
   Los identificadores de bloque salen del panel de AdSense y no se pueden
   adivinar, asi que cada posicion tiene su propia variable. Si falta la del hueco
@@ -17,6 +16,8 @@
   - siempre con la etiqueta "Publicidad" visible;
   - altura minima reservada, para que al cargar no empuje el texto hacia abajo.
 */
+import { ADSENSE_CLIENTE, PUBLICIDAD_ACTIVA } from '../lib/publicidad';
+
 type Posicion = 'en-edicion' | 'en-listado' | 'lateral';
 
 interface Props {
@@ -24,8 +25,6 @@ interface Props {
 }
 
 const { posicion } = Astro.props;
-
-const cliente = import.meta.env.PUBLIC_ADSENSE_CLIENT?.trim();
 
 const BLOQUES: Record<Posicion, string | undefined> = {
   'en-edicion': import.meta.env.PUBLIC_ADSENSE_SLOT_EDICION?.trim(),
@@ -41,7 +40,7 @@ const ALTURA: Record<Posicion, number> = {
 };
 
 const bloque = BLOQUES[posicion];
-const activo = Boolean(cliente && bloque);
+const activo = Boolean(PUBLICIDAD_ACTIVA && bloque);
 ---
 
 {
@@ -58,7 +57,7 @@ const activo = Boolean(cliente && bloque);
         <ins
           class="adsbygoogle"
           style="display:block;width:100%"
-          data-ad-client={cliente}
+          data-ad-client={ADSENSE_CLIENTE}
           data-ad-slot={bloque}
           data-ad-format="auto"
           data-full-width-responsive="true"

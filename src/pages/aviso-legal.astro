@@ -1,24 +1,26 @@
 ---
 import Documento from '../layouts/Documento.astro';
 import { SITIO } from '../lib/sitio';
+import { PUBLICIDAD_ACTIVA } from '../lib/publicidad';
 ---
 
 <Documento
   titulo="Aviso legal"
   descripcion="Titularidad de Semana IA, condiciones de uso y tratamiento de los contenidos de terceros."
   entradilla="Quién publica este sitio, qué puedes hacer con él y qué relación tiene con los medios que enlaza."
-  actualizado="7 de septiembre de 2026"
+  actualizado="22 de septiembre de 2026"
 >
   <h2>Titularidad</h2>
   <p>
     Este sitio web lo publica {SITIO.responsable}, responsable de su contenido y de su
     mantenimiento. La dirección de contacto es <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a>,
-    y también está disponible el formulario de la <a href="/contacto">página de contacto</a>.
+    y se explica cómo escribir en la <a href="/contacto">página de contacto</a>.
   </p>
   <p>
-    El sitio no tiene ánimo de lucro más allá de la publicidad que pueda mostrarse para cubrir sus
-    costes, no vende productos ni servicios y no mantiene relación comercial con ninguno de los
-    medios que enlaza.
+    El sitio no vende productos ni servicios ni cobra por incluir noticias de los medios que enlaza.
+    {PUBLICIDAD_ACTIVA
+      ? 'El sitio puede mostrar anuncios de Google AdSense.'
+      : 'La publicidad de AdSense solo se mostrará si se activa más adelante.'}
   </p>
 
   <h2>Qué es lo que se publica aquí</h2>
@@ -40,9 +42,10 @@ import { SITIO } from '../lib/sitio';
 
   <h2>Los textos propios</h2>
   <p>
-    Los resúmenes en español, los textos de presentación de cada edición y el diseño del sitio son
-    obra de {SITIO.responsable}. Puedes citarlos y enlazarlos libremente indicando la procedencia.
-    El código que genera el boletín es público y está en
+    La selección y la presentación de cada edición se realizan mediante un proceso automatizado;
+    algunos textos se generan con ayuda de IA y pueden corregirse después. Los análisis firmados,
+    cuando se publiquen, identificarán a su autor. Puedes citar y enlazar esta publicación indicando
+    su procedencia. El código que genera el boletín es público y está en
     <a href={SITIO.repositorio} rel="noopener noreferrer">GitHub</a>.
   </p>
 

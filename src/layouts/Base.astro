@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Cabecera from '../components/Cabecera.astro';
 import Pie from '../components/Pie.astro';
 import { SITIO } from '../lib/sitio';
+import { ADSENSE_CLIENTE, PUBLICIDAD_ACTIVA } from '../lib/publicidad';
 
 import type { Miga } from '../components/Migas.astro';
 
@@ -22,13 +23,6 @@ interface Props {
 const { titulo, descripcion, canonica, migas, articulo, noIndexar } = Astro.props;
 const url = new URL(canonica ?? Astro.url.pathname, Astro.site);
 const tituloCompleto = titulo === SITIO.nombre ? titulo : `${titulo} · ${SITIO.nombre}`;
-
-/*
-  El identificador de AdSense llega por variable de entorno. Mientras este vacio,
-  la pagina no carga ni un solo script de terceros: es lo que permite pedir la
-  revision con el sitio limpio y encender la publicidad despues sin tocar codigo.
-*/
-const adsense = import.meta.env.PUBLIC_ADSENSE_CLIENT?.trim();
 
 /*
   Datos estructurados. El sitio y el editor van en todas las paginas; las migas y
@@ -157,13 +151,11 @@ const datosEstructurados = {
     </script>
 
     {
-      adsense && (
+      PUBLICIDAD_ACTIVA && (
         <>
           {/*
-            Modo de consentimiento v2. Se declara denegado antes de cargar nada de
-            Google: hasta que el aviso de cookies lo actualice, no puede haber
-            publicidad personalizada. Sin esta linea la plataforma de consentimiento
-            de AdSense no tiene sobre que actuar.
+            El estado denegado es una proteccion inicial. No sustituye a una CMP
+            certificada ni a su configuracion en el panel de AdSense.
           */}
           <script is:inline>
             window.dataLayer = window.dataLayer || [];
@@ -181,7 +173,7 @@ const datosEstructurados = {
 
           <script
             async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense}`}
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENTE}`}
             crossorigin="anonymous"
           />
         </>

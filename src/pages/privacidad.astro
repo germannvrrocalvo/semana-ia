@@ -1,97 +1,94 @@
 ---
 import Documento from '../layouts/Documento.astro';
 import { SITIO } from '../lib/sitio';
+import { PUBLICIDAD_ACTIVA } from '../lib/publicidad';
 ---
 
 <Documento
   titulo="Política de privacidad"
-  descripcion="Qué datos trata Semana IA, con qué finalidad, quién los recibe y cómo ejercer tus derechos."
-  entradilla="Este sitio no te pide datos para leerlo. Esto es todo lo que ocurre igualmente."
-  actualizado="7 de septiembre de 2026"
+  descripcion="Cómo trata Semana IA los datos de las visitas y los mensajes, y qué ocurrirá si se activa la publicidad."
+  entradilla="Puedes leer la publicación sin crear una cuenta ni facilitar tus datos."
+  actualizado="22 de septiembre de 2026"
 >
-  <h2>Responsable del tratamiento</h2>
+  <h2>Responsable y contacto</h2>
   <p>
-    {SITIO.responsable}, editor de {SITIO.nombre}. Contacto:
-    <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a>.
+    El responsable de este sitio es {SITIO.responsable}. Para consultas sobre privacidad o para
+    ejercer tus derechos, escribe a <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a>.
   </p>
 
-  <h2>Qué datos se tratan</h2>
-  <ul>
-    <li>
-      <strong>Si nos escribes:</strong> tu dirección de correo y lo que cuentes en el mensaje. Se
-      usa para responderte y para corregir lo que haya que corregir.
-    </li>
-    <li>
-      <strong>Datos técnicos de la visita:</strong> el alojamiento del sitio registra datos como la
-      dirección IP, la fecha, la página solicitada y el navegador. Es el registro habitual de
-      cualquier servidor y sirve para mantener el servicio y detectar abusos.
-    </li>
-    <li>
-      <strong>Preferencia de tema:</strong> si eliges el modo claro u oscuro, la elección se guarda
-      en el almacenamiento local de tu navegador. No sale de tu dispositivo y no llega a ningún
-      servidor.
-    </li>
-    <li>
-      <strong>Publicidad:</strong> cuando haya anuncios activos, Google y sus proveedores pueden
-      tratar datos de tu navegación para mostrarlos y medirlos. Lo detallamos en la
-      <a href="/cookies">política de cookies</a>.
-    </li>
-  </ul>
+  <h2>Datos que se tratan al visitar la web</h2>
   <p>
-    No hay registro de usuarios, ni boletín por correo, ni formularios que recojan datos. El feed
-    RSS se consulta sin identificarse.
+    El sitio se aloja en IONOS. Al servir las páginas, el alojamiento puede registrar datos técnicos
+    de la solicitud, como la dirección IP, fecha y hora, URL solicitada y datos del navegador. Se
+    utilizan para entregar el sitio, mantenerlo disponible y protegerlo frente a abusos. La base
+    jurídica de estas operaciones es el interés legítimo en prestar y proteger el servicio. Los
+    plazos de conservación de los registros dependen de la configuración del alojamiento.
+  </p>
+  <p>
+    Si eliges tema claro u oscuro, el navegador guarda la preferencia <code>tema</code> en su
+    almacenamiento local. Esta preferencia se usa para mostrar la web como la has elegido; no se
+    envía al servidor y permanece hasta que cambies la elección o borres los datos del sitio.
   </p>
 
-  <h2>Base jurídica</h2>
-  <ul>
-    <li>Responder a tu mensaje: tu propio consentimiento al escribirnos.</li>
-    <li>
-      Registros técnicos y seguridad del servicio: interés legítimo en mantener el sitio en
-      funcionamiento.
-    </li>
-    <li>
-      Publicidad personalizada y medición: tu consentimiento, que puedes dar o negar cuando se te
-      solicite y retirar después.
-    </li>
-  </ul>
-
-  <h2>Quién más los recibe</h2>
-  <ul>
-    <li>
-      <strong>Vercel Inc.</strong>, que aloja el sitio y genera los registros técnicos descritos
-      arriba.
-    </li>
-    <li>
-      <strong>Google Ireland Limited</strong>, si la publicidad está activa, como proveedor de
-      AdSense.
-    </li>
-  </ul>
+  <h2>Cuando nos escribes</h2>
   <p>
-    Ambos pueden tratar datos fuera del Espacio Económico Europeo, amparados en los mecanismos de
-    transferencia internacional previstos en el Reglamento General de Protección de Datos. No se
-    ceden datos a nadie más ni se venden a terceros.
+    Recibimos tu dirección de correo y los datos que incluyas en el mensaje para responderte,
+    gestionar correcciones o atender tu solicitud. El correo se gestiona mediante Gmail, de Google.
+    La base jurídica es el interés legítimo en atender la comunicación que has iniciado. Conservamos
+    la conversación mientras sea necesaria para responder y, en su caso, atender responsabilidades
+    relacionadas con ella. No hay cuentas de usuario, formularios ni boletín por correo.
   </p>
 
-  <h2>Cuánto tiempo se conservan</h2>
+  <h2>Publicidad de Google</h2>
+  {
+    PUBLICIDAD_ACTIVA ? (
+      <p>
+        El sitio utiliza Google AdSense. Google y otros proveedores publicitarios pueden usar cookies
+        y tecnologías similares para mostrar y medir anuncios, incluida la publicidad personalizada
+        cuando hayas dado el consentimiento necesario. Consulta la <a href="/cookies">política de cookies</a>
+        para conocer las opciones de consentimiento y retirada.
+      </p>
+    ) : (
+      <p>
+        Actualmente el sitio no carga AdSense ni muestra anuncios. La presencia del identificador
+        del editor en <code>ads.txt</code> no instala cookies ni activa publicidad. Si se activa
+        AdSense, esta política se actualizará para describir el tratamiento real de datos y las
+        opciones de consentimiento antes de publicar anuncios.
+      </p>
+    )
+  }
   <p>
-    Los correos, mientras dure la conversación y el tiempo necesario para atender responsabilidades
-    derivadas de ella. Los registros técnicos, durante los plazos de retención del proveedor de
-    alojamiento. La preferencia de tema, hasta que borres los datos del sitio en tu navegador.
+    Cuando se utilice AdSense, Google y otros proveedores publicitarios podrán emplear cookies para
+    mostrar anuncios basados en las visitas a este y a otros sitios. Esto permite a Google y sus
+    partners personalizar anuncios. Puedes desactivar esa personalización en
+    <a href="https://myadcenter.google.com/" rel="noopener noreferrer">Mi centro de anuncios de Google</a>.
+    Para otros proveedores, consulta sus opciones de privacidad y
+    <a href="https://www.aboutads.info/choices/" rel="noopener noreferrer">AboutAds</a>. La selección
+    concreta de proveedores y finalidades se mostrará en la plataforma de consentimiento cuando se
+    habilite la publicidad.
+  </p>
+
+  <h2>Destinatarios y transferencias</h2>
+  <p>
+    IONOS presta el alojamiento y Google presta el servicio de correo cuando nos escribes. Si se
+    activa AdSense, Google y los proveedores publicitarios seleccionados también tratarán datos
+    conforme a las opciones que elijas. Consulta la
+    <a href="https://policies.google.com/privacy?hl=es" rel="noopener noreferrer">política de privacidad de Google</a>
+    para conocer su tratamiento y las posibles transferencias internacionales. Esta web no vende
+    datos personales de sus lectores.
   </p>
 
   <h2>Tus derechos</h2>
   <p>
-    Puedes solicitar el acceso a tus datos, su rectificación o supresión, la limitación u oposición
-    al tratamiento y la portabilidad, escribiendo a
-    <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a>. Si consideras que no se han atendido
-    correctamente, puedes reclamar ante la Agencia Española de Protección de Datos
-    (<a href="https://www.aepd.es" rel="noopener noreferrer">aepd.es</a>).
+    Puedes solicitar acceso, rectificación, supresión, limitación u oposición al tratamiento y, si
+    procede, portabilidad. Escribe a <a href={`mailto:${SITIO.correo}`}>{SITIO.correo}</a>. También
+    puedes presentar una reclamación ante la
+    <a href="https://www.aepd.es/" rel="noopener noreferrer">Agencia Española de Protección de Datos</a>.
   </p>
 
-  <h2>Cambios en esta política</h2>
+  <h2>Cambios</h2>
   <p>
-    Si cambia algo relevante, se actualiza esta página y con ella la fecha de revisión del
-    encabezado. Los cambios importantes, como la activación de la publicidad, se anunciarán además
-    en el propio sitio.
+    Esta página se revisa cuando cambia el funcionamiento del sitio. La fecha de la cabecera indica
+    cuándo se actualizó por última vez.
   </p>
 </Documento>
